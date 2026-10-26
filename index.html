@@ -3,7 +3,7 @@
 .console-columns{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(320px,1fr);gap:14px;align-items:start;margin-top:15px}.console-columns>.card{margin:0}.compose textarea{min-height:94px}.activity-panel{min-height:340px;max-height:510px;overflow-y:auto}.panel-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;position:sticky;top:-18px;background:#142239;padding:5px 0 10px;z-index:1}.panel-heading h3{margin:0}.activity-panel #latest .card{padding:12px 14px;margin:8px 0;background:#1a2b43;border-radius:8px}.activity-panel #latest .card p{margin:7px 0 2px;line-height:1.35}.activity-panel #latest .card strong{font-size:13px}.activity-panel #latest .card small{font-size:12px}.active-summary{padding:12px 17px}.active-summary p{margin:6px 0 0}.radio{min-height:82px;padding:12px}.radio strong{font-size:16px}.radio span{margin-top:3px}#radioGrid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}@media(max-width:920px){.console-columns{grid-template-columns:1fr}.activity-panel{min-height:0;max-height:360px}}@media(max-width:550px){main{padding:12px}header{padding:14px}#radioGrid{grid-template-columns:repeat(2,minmax(0,1fr))}.radio{min-height:78px}nav{padding:10px;gap:6px}nav button{padding:10px;font-size:12px}.console-columns{gap:10px}}
 
 /* Bampton skin and optional alternative event colourways */
-:root{--bg:#090909;--panel:#181818;--raised:#242424;--head:#101010;--nav:#171717;--border:#5d554c;--ink:#ffffff;--sub:#c5c5c5;--accent:#fa961e;--on-accent:#090909;--success:#82e0af;color-scheme:dark}
+:root{--bg:#FA961E;--panel:#111111;--raised:#202020;--head:#101010;--nav:#101010;--border:#68605a;--ink:#ffffff;--sub:#d2d2d2;--accent:#FA961E;--on-accent:#101010;--success:#82e0af;color-scheme:dark}
 :root[data-skin="control"]{--bg:#0c1422;--panel:#142239;--raised:#1b3049;--head:#132137;--nav:#101d30;--border:#45607b;--ink:#eef5ff;--sub:#b3c1d2;--accent:#e5b64c;--on-accent:#152033}
 :root[data-skin="exmoor"]{--bg:#0c1510;--panel:#15251b;--raised:#24382a;--head:#0e1b13;--nav:#142319;--border:#60775d;--ink:#f7fff6;--sub:#c9d7c6;--accent:#a8d36b;--on-accent:#11200f}
 html,body{background:var(--bg);color:var(--ink)}
@@ -30,6 +30,17 @@ button.active span,button.active small,.primary span{color:var(--on-accent)}
 #message{background:#050505;color:#fff;border:1px solid var(--border)}
 #message:focus{outline:2px solid var(--accent);outline-offset:1px}
 [data-skin].active{box-shadow:0 0 0 2px var(--accent)}
+/* Bampton orange canvas with distinct black control surfaces */
+:root[data-skin="bampton"] main{background:var(--bg)}
+:root[data-skin="bampton"] main>section>h2,:root[data-skin="bampton"] main>section>.row>strong{color:#111111}
+:root[data-skin="bampton"] .console-columns>.card,:root[data-skin="bampton"] .active-summary,:root[data-skin="bampton"] .radio{border-color:#68605a}
+:root[data-skin="bampton"] .card,:root[data-skin="bampton"] .radio{box-shadow:0 2px 8px rgba(0,0,0,.13)}
+:root[data-skin="bampton"] .radio.active{border-color:#ffffff}
+:root[data-skin="bampton"] .notice{background:#111111;color:#fff;border-left-color:#fff}
+:root[data-skin="bampton"] #console>.row{background:#111111;border-radius:9px;padding:10px 14px}
+:root[data-skin="bampton"] .activity-panel #latest .card{border-color:#4e4e4e}
+:root[data-skin="bampton"] footer{background:#111111}
+
 .radio strong{font-size:17px;line-height:1.25;overflow-wrap:anywhere}.radio span{font-size:13px;font-weight:700;margin-top:9px;letter-spacing:.5px}.compose label:has(#message){display:block;padding-top:7px}.compose #message{margin-top:12px;min-height:164px}.console-columns>.card,.active-summary,.radio{border-color:rgba(250,150,30,.66)}.activity-panel #latest .card{border-color:rgba(250,150,30,.28)}:root[data-skin="control"] .console-columns>.card,:root[data-skin="control"] .active-summary,:root[data-skin="control"] .radio{border-color:var(--border)}:root[data-skin="exmoor"] .console-columns>.card,:root[data-skin="exmoor"] .active-summary,:root[data-skin="exmoor"] .radio{border-color:var(--border)}
 </style></head><body><header><div><h1>📻 <span id="appTitle">BAMPTON FAIR CONTROL</span></h1><small id="appSubtitle">Bampton Town Council · Communications • Incidents • Audit trail</small></div><div><span id="clock" class="stamp topstat"></span><div id="storage" class="good">Checking local storage…</div><div id="offlineReady" class="warn" style="font-size:12px">Offline cache: checking…</div></div></header>
 <nav><button class="active" data-view="console">RADIO CONSOLE</button><button data-view="assignments">RADIOS & DUTY</button><button data-view="incidents">INCIDENTS & ACTIONS</button><button data-view="log">MASTER LOG</button><button data-view="system">BACKUPS & SYSTEM</button><button data-view="settings">SETTINGS & SKINS</button></nav>
