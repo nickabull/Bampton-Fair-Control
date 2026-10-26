@@ -1,0 +1,9 @@
+{
+  "name": "Bampton Fair Control",
+  "short_name": "Fair Control",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#0c1422",
+  "theme_color": "#132137"
+}
