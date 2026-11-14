@@ -69,7 +69,7 @@
 .pitch-footprint-label{display:block;background:#1f2529eb;border:1px solid #f58220;border-radius:5px;color:#fff;padding:2px 4px;font:bold 10px Arial;text-align:center;white-space:nowrap;box-shadow:0 2px 7px #0005}
 .pitchitem .areaTag{display:block;color:#fbc48c;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.35px;margin-top:3px}
 #movePitch.armed{background:#f58220;color:#111!important} #streetviewJs{position:absolute;inset:0;width:100%;height:100%;min-height:0} #walk3dCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:700} .pitch-hover{background:#202529;color:#fff;border:1px solid #f58220;border-radius:9px;padding:9px 12px;box-shadow:0 5px 20px #0008;line-height:1.5} .pitch-hover strong{color:#ffa64d;font-size:13px}.pitch-drag-handle{width:20px;height:20px;border:1px solid #50585c;border-radius:4px;background:#f5f2e9;color:#111;box-shadow:0 1px 4px #0007;display:grid;place-items:center;cursor:grab;touch-action:none;position:relative}.pitch-drag-handle::before,.pitch-drag-handle::after{content:'';display:block;position:absolute;background:#111;border-radius:2px}.pitch-drag-handle::before{width:12px;height:2.5px}.pitch-drag-handle::after{width:2.5px;height:12px}.pitch-map-label{color:#111;text-align:center;line-height:1.1;font:bold 11px Arial,sans-serif;text-shadow:0 1px 2px #fff,0 -1px 2px #fff;white-space:nowrap;pointer-events:none;transform:translate(-50%,-50%);width:max-content;max-width:110px;overflow:hidden;text-overflow:ellipsis}.leaflet-tooltip.pitch-hover-wrap,.leaflet-tooltip.pitch-hover-wrap .pitch-hover{color:#111;background:#fffaf0}.leaflet-tooltip.pitch-hover-wrap .pitch-hover strong{color:#111}.leaflet-tooltip.pitch-hover-wrap{border-color:#333}.leaflet-tooltip.pitch-hover-wrap{font:12px/1.3 Arial,sans-serif!important;max-width:190px!important;white-space:normal!important;padding:5px 7px!important;box-shadow:0 2px 6px #0004!important}.leaflet-tooltip.pitch-hover-wrap .pitch-hover{font:12px/1.3 Arial,sans-serif!important;max-width:175px!important;padding:0!important;border:0!important;box-shadow:none!important}.leaflet-tooltip.pitch-hover-wrap .pitch-hover strong{font-size:12px!important;color:#111!important}.pitch-drag-handle:active{cursor:grabbing}.leaflet-tooltip.pitch-hover-wrap{pointer-events:none}.pitch-summary{min-width:195px;color:#263039;line-height:1.6;font-size:13px}.pitch-summary strong{color:#bc6015}.pitch-summary button{background:#f58220;color:#101010;border:0;border-radius:6px;padding:9px 12px;cursor:pointer;font-weight:bold;width:100%;margin-top:8px}.leaflet-popup-content-wrapper{border:2px solid #f58220}</style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V13 · FAIR DAY WALKTHROUGH</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V13.1 · WALKTHROUGH ALIGNMENT</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -212,7 +212,7 @@ function coverPrivateOsMap(resetView=false){
   map.setMinZoom(Math.max(0,coverZoom-2));
   if(resetView||map.getZoom()<map.getMinZoom()){
     const current=map.getCenter(),centre=osPrivateBounds.contains(current)?current:osPrivateBounds.getCenter();
-    map.setView(centre,resetView?coverZoom:Math.max(map.getMinZoom(),map.getZoom()),{animate:false});
+    map.setView(centre,resetView?Math.max(map.getMinZoom(),coverZoom-1):Math.max(map.getMinZoom(),map.getZoom()),{animate:false});
   }
   map.panInsideBounds(osPrivateBounds,{animate:false});
 }
@@ -608,6 +608,9 @@ let walkPanorama=null,walkMarkers=[],walkScriptPromise=null;
 let threeCanvas=null;
 // Visual-only per-stall offset: never modifies the OS-map pitch geometry or Wix records.
 const ALIGN_STORE='bamptonFair.walk3d.demoOffsets.v1';
+const GLOBAL_ALIGN_STORE='bamptonFair.walk3d.globalRoadOffset.v1';
+let global3dOffset={east:0,north:0};
+try{const o=JSON.parse(localStorage.getItem(GLOBAL_ALIGN_STORE)||'null');if(Number.isFinite(o?.east)&&Number.isFinite(o?.north))global3dOffset={east:o.east,north:o.north};}catch(e){}
 let alignOffsets={};
 try{const stored=JSON.parse(localStorage.getItem(ALIGN_STORE)||'{}');if(stored&&typeof stored==='object'&&!Array.isArray(stored))alignOffsets=stored;}catch(e){}
 function offsetFor3dPitch(p){
@@ -616,25 +619,33 @@ function offsetFor3dPitch(p){
 }
 function current3dOffset(){return offsetFor3dPitch(selectedPitch());}
 function updateAlignmentStatus(){
- const o=current3dOffset();
- $('alignStatus').textContent='Demo-only: '+o.east.toFixed(1)+'m E / '+o.north.toFixed(1)+'m N';
+ const all=$('walkScope').value==='all';
+ const o=all?global3dOffset:current3dOffset();
+ $('alignStatus').textContent=(all?'All stalls · road calibration: ':'Selected stall · demo-only: ')+o.east.toFixed(1)+'m E / '+o.north.toFixed(1)+'m N';
 }
 document.querySelectorAll('[data-align]').forEach(button=>button.addEventListener('click',()=>{
  const p=selectedPitch();
  if(!p||!walkPanorama||!$('show3d').checked){
    $('alignStatus').textContent='Start 3D overlay and select a stall first';return;
  }
- const dir=button.dataset.align;
- if(dir==='reset')delete alignOffsets[p.id];
- else{
+ const dir=button.dataset.align,all=$('walkScope').value==='all';
+ if(dir==='reset'){
+   if(all)global3dOffset={east:0,north:0};
+   else delete alignOffsets[p.id];
+ }else{
    const heading=(walkPanorama.getPov()?.heading||0)*Math.PI/180;
    const screenRight={east:Math.cos(heading),north:-Math.sin(heading)};
    const forward={east:Math.sin(heading),north:Math.cos(heading)};
    const steps={left:[-0.5,0],right:[0.5,0],up:[0,0.5],down:[0,-0.5]};
-   const [right,depth]=steps[dir]||[0,0],o=current3dOffset();
-   alignOffsets[p.id]={east:Math.max(-25,Math.min(25,o.east+screenRight.east*right+forward.east*depth)),north:Math.max(-25,Math.min(25,o.north+screenRight.north*right+forward.north*depth))};
+   const [right,depth]=steps[dir]||[0,0],o=all?global3dOffset:current3dOffset();
+   const adjusted={east:Math.max(-25,Math.min(25,o.east+screenRight.east*right+forward.east*depth)),north:Math.max(-25,Math.min(25,o.north+screenRight.north*right+forward.north*depth))};
+   if(all)global3dOffset=adjusted;
+   else alignOffsets[p.id]=adjusted;
  }
- try{localStorage.setItem(ALIGN_STORE,JSON.stringify(alignOffsets));}catch(e){}
+ try{
+   localStorage.setItem(ALIGN_STORE,JSON.stringify(alignOffsets));
+   localStorage.setItem(GLOBAL_ALIGN_STORE,JSON.stringify(global3dOffset));
+ }catch(e){}
  updateAlignmentStatus();draw3dBox();
 }));
 function ensure3dCanvas(){
@@ -674,7 +685,8 @@ function draw3dBox(){
  const drawable=[];
  for(const p of candidates){
    if(!p||!Number.isFinite(p.lat)||!Number.isFinite(p.lng))continue;
-   const offset=offsetFor3dPitch(p);
+   const individual=offsetFor3dPitch(p);
+   const offset={east:individual.east+global3dOffset.east,north:individual.north+global3dOffset.north};
    const east=(p.lng-lng)*111320*Math.cos(lat*Math.PI/180)+offset.east;
    const north=(p.lat-lat)*111320+offset.north;
    // Avoid rendering distant projections that would cover the entire panorama.
@@ -721,7 +733,7 @@ function draw3dBox(){
  }
 }
 $('show3d').onchange=()=>{ensure3dCanvas();if(walkPanorama)syncWalkMarkers();};
-$('walkScope').onchange=()=>{if(walkPanorama)syncWalkMarkers();else draw3dBox();};
+$('walkScope').onchange=()=>{updateAlignmentStatus();if(walkPanorama)syncWalkMarkers();else draw3dBox();};
 window.addEventListener('resize',draw3dBox);
 let walkLastSelected=null;
 const walkStatus=message=>{$('walkStatus').textContent=message};
