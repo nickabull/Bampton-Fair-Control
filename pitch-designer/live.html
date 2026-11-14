@@ -68,7 +68,7 @@
 .preset-row{display:flex;gap:5px;flex-wrap:wrap}.preset-row button{padding:7px 8px;font-size:12px;background:#444d50;color:#fff}.preset-row button.active{background:#f58220;color:#17191b}
 .pitch-footprint-label{display:block;background:#1f2529eb;border:1px solid #f58220;border-radius:5px;color:#fff;padding:2px 4px;font:bold 10px Arial;text-align:center;white-space:nowrap;box-shadow:0 2px 7px #0005}
 .pitchitem .areaTag{display:block;color:#fbc48c;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.35px;margin-top:3px}
-#movePitch.armed{background:#f58220;color:#111!important} #streetviewJs{position:relative} #walk3dCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:700} .pitch-hover{background:#202529;color:#fff;border:1px solid #f58220;border-radius:9px;padding:9px 12px;box-shadow:0 5px 20px #0008;line-height:1.5} .pitch-hover strong{color:#ffa64d;font-size:13px}</style></head><body>
+#movePitch.armed{background:#f58220;color:#111!important} #streetviewJs{position:absolute;inset:0;width:100%;height:100%;min-height:0} #walk3dCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:700} .pitch-hover{background:#202529;color:#fff;border:1px solid #f58220;border-radius:9px;padding:9px 12px;box-shadow:0 5px 20px #0008;line-height:1.5} .pitch-hover strong{color:#ffa64d;font-size:13px}</style></head><body>
 <header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="tag">V12 · MOVE + 3D PROOF OF CONCEPT</div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
@@ -682,6 +682,8 @@ $('walkLoad').onclick=async()=>{
       addressControl:true,linksControl:true,panControl:true,zoomControl:true,enableCloseButton:false
     });
     walkLastSelected=p.id;ensure3dCanvas();
+    // Google needs a measurable panorama div; force a refresh after Wix dock becomes visible.
+    setTimeout(()=>{if(walkPanorama&&window.google?.maps?.event){google.maps.event.trigger(walkPanorama,'resize');walkPanorama.setVisible(true);draw3dBox();}},120);
     walkPanorama.addListener('pov_changed',draw3dBox);
     walkPanorama.addListener('zoom_changed',draw3dBox);
     walkPanorama.addListener('position_changed',()=>{draw3dBox();
