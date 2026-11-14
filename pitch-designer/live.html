@@ -69,7 +69,7 @@
 .pitch-footprint-label{display:block;background:#1f2529eb;border:1px solid #f58220;border-radius:5px;color:#fff;padding:2px 4px;font:bold 10px Arial;text-align:center;white-space:nowrap;box-shadow:0 2px 7px #0005}
 .pitchitem .areaTag{display:block;color:#fbc48c;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.35px;margin-top:3px}
 #movePitch.armed{background:#f58220;color:#111!important} #streetviewJs{position:absolute;inset:0;width:100%;height:100%;min-height:0} #walk3dCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:700} .pitch-hover{background:#202529;color:#fff;border:1px solid #f58220;border-radius:9px;padding:9px 12px;box-shadow:0 5px 20px #0008;line-height:1.5} .pitch-hover strong{color:#ffa64d;font-size:13px}.pitch-drag-handle{width:38px;height:38px;border:2px solid white;border-radius:10px;background:#f58220;color:#1a1a1a;box-shadow:0 3px 9px #0008;display:grid;place-items:center;font:bold 22px Arial;cursor:grab;touch-action:none}.pitch-drag-handle:active{cursor:grabbing}.leaflet-tooltip.pitch-hover-wrap{pointer-events:none}.pitch-summary{min-width:195px;color:#263039;line-height:1.6;font-size:13px}.pitch-summary strong{color:#bc6015}.pitch-summary button{background:#f58220;color:#101010;border:0;border-radius:6px;padding:9px 12px;cursor:pointer;font-weight:bold;width:100%;margin-top:8px}.leaflet-popup-content-wrapper{border:2px solid #f58220}</style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="tag">V12.2 · DRAG HANDLE + DETAILS</div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="tag">V12.3 · CLEAN OS MAP VIEW</div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -250,13 +250,17 @@ async function loadPrivateOsFile(file){
     osPrivateOverlay=L.imageOverlay(nextUrl,osPrivateBounds,{pane:'privateOsPane',opacity:1,interactive:false,alt:'Private OS MasterMap Topography - Fair route council extract'});
     osPrivateObjectUrl=nextUrl;
     osPrivateOverlay.addTo(map);
+    // Never show two cartographic styles together. Keep the tiles loaded only in fallback mode.
+    if(map.hasLayer(baseTiles))map.removeLayer(baseTiles);
+    // Restrict panning to the actual extent of the council extract, with minimal edge tolerance.
+    map.setMaxBounds(osPrivateBounds.pad(0.02));
+    map.options.maxBoundsViscosity=0.85;
     if(oldLayer)map.removeLayer(oldLayer);
     if(oldUrl)URL.revokeObjectURL(oldUrl);
     const p=selectedPitch();
-    let view=osPrivateBounds.pad(.10);
-    if(p)view.extend([p.lat,p.lng]);
-    map.fitBounds(view,{animate:false,maxZoom:20});
-    osStatus('Expanded OS MasterMap loaded privately ('+Math.round(file.size/1024)+' KB). Wix pitch controls and CMS bridge remain unchanged. Local browser layer only; licence applies.');
+    // Do not include locations outside the private SVG extent or the map may show empty margins.
+    map.fitBounds(osPrivateBounds,{animate:false,maxZoom:20,padding:[5,5]});
+    osStatus('Private OS MasterMap ONLY — OpenStreetMap tiles hidden. This council map stays on this device; press Show OpenStreetMap instead to swap maps.');
     setTimeout(()=>map.invalidateSize(),50);
   }catch(error){osStatus('Could not open private map: '+String(error.message||error).slice(0,120));}
 }
@@ -276,8 +280,12 @@ catch(e){console.warn('No cached private OS map',e?.message||e);}})();
 $('osFallback').onclick=()=>{
   if(osPrivateOverlay){map.removeLayer(osPrivateOverlay);osPrivateOverlay=null;}
   if(osPrivateObjectUrl){URL.revokeObjectURL(osPrivateObjectUrl);osPrivateObjectUrl=null;}
+  osPrivateBounds=null;
+  map.setMaxBounds(null);
+  map.options.maxBoundsViscosity=0;
+  if(!map.hasLayer(baseTiles))baseTiles.addTo(map);
   $('osLocalFile').value='';
-  osStatus('OpenStreetMap fallback active. The private OS file has been unloaded.');
+  osStatus('OpenStreetMap ONLY — private OS overlay hidden. You can reload the private OS SVG to switch back.');
 };
 // Debug Wix embed rendering without exposing any council/trader data.
 function tileDiagnostics(){
