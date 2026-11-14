@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bampton Fair · Live Loader</title>
+<style>
+html,body{height:100%;margin:0;background:#15191c;color:white;font:15px Arial,sans-serif}
+main{max-width:700px;margin:12vh auto;padding:24px}h1{color:#f58220}button{background:#f58220;color:#111;border:0;border-radius:7px;padding:12px 18px;font-weight:700;cursor:pointer}
+small{color:#bec6cb}
+</style></head><body><main>
+<h1>Bampton Fair · Pitch Designer</h1>
+<p id="liveStatus">Loading latest approved version from our GitHub master…</p>
+<p><small>Private OS file and restricted Google keys remain on this device. This loader does not contain them.</small></p>
+<button id="retry" hidden>Retry loading</button>
+</main>
+<script>
+(function(){
+"use strict";
+const LIVE="https://raw.githubusercontent.com/nickabull/Bampton-Fair-Control/main/pitch-designer/live.html";
+const status=document.getElementById("liveStatus"),retry=document.getElementById("retry");
+async function load(){
+ retry.hidden=true;status.textContent="Loading latest approved version from GitHub…";
+ try{
+  // Bust intermediaries' HTML cache, preserving browser draft data in this same Wix iframe.
+  const url=LIVE+"?v="+Date.now();
+  const response=await fetch(url,{cache:"no-store",mode:"cors",credentials:"omit",redirect:"follow"});
+  if(!response.ok)throw new Error("GitHub responded "+response.status);
+  const html=await response.text();
+  if(html.length<12000||!/^\s*<!doctype html>/i.test(html)||!html.includes("bamptonFair.pitchDesigner.v1.draft"))
+   throw new Error("Live build failed content safety checks");
+  document.open();
+  document.write(html);
+  document.close();
+ }catch(e){
+  status.textContent="Could not load the live designer. Nothing has been replaced or erased. "+String(e.message||e)+". Check the Wix HTML component network permissions, GitHub availability, and then retry.";
+  retry.hidden=false;
+ }
+}
+retry.addEventListener("click",load);load();
+})();
+</script></body></html>
