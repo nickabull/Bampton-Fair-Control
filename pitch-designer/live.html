@@ -69,7 +69,7 @@
 .pitch-footprint-label{display:block;background:#1f2529eb;border:1px solid #f58220;border-radius:5px;color:#fff;padding:2px 4px;font:bold 10px Arial;text-align:center;white-space:nowrap;box-shadow:0 2px 7px #0005}
 .pitchitem .areaTag{display:block;color:#fbc48c;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.35px;margin-top:3px}
 #movePitch.armed{background:#f58220;color:#111!important} #streetviewJs{position:absolute;inset:0;width:100%;height:100%;min-height:0} #walk3dCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:700} .pitch-hover{background:#202529;color:#fff;border:1px solid #f58220;border-radius:9px;padding:9px 12px;box-shadow:0 5px 20px #0008;line-height:1.5} .pitch-hover strong{color:#ffa64d;font-size:13px}.pitch-drag-handle{width:38px;height:38px;border:2px solid white;border-radius:10px;background:#f58220;color:#1a1a1a;box-shadow:0 3px 9px #0008;display:grid;place-items:center;font:bold 22px Arial;cursor:grab;touch-action:none}.pitch-drag-handle:active{cursor:grabbing}.leaflet-tooltip.pitch-hover-wrap{pointer-events:none}.pitch-summary{min-width:195px;color:#263039;line-height:1.6;font-size:13px}.pitch-summary strong{color:#bc6015}.pitch-summary button{background:#f58220;color:#101010;border:0;border-radius:6px;padding:9px 12px;cursor:pointer;font-weight:bold;width:100%;margin-top:8px}.leaflet-popup-content-wrapper{border:2px solid #f58220}</style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="tag">V12.3 · CLEAN OS MAP VIEW</div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="tag">V12.4 · FULL-WINDOW OS MAP</div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -199,6 +199,21 @@ map.createPane('privateOsPane');
 map.getPane('privateOsPane').style.zIndex='250';
 map.getPane('privateOsPane').style.pointerEvents='none';
 let osPrivateOverlay=null,osPrivateObjectUrl=null;
+let prePrivateMinZoom=null;
+function coverPrivateOsMap(resetView=false){
+  if(!osPrivateOverlay||!osPrivateBounds||!map._loaded)return;
+  map.invalidateSize({pan:false,animate:false});
+  // Leaflet inside=true computes the minimum zoom whose viewport is COVERED by the image,
+  // rather than fitting the entire image inside the viewport (which exposes grey margins).
+  const coverZoom=Math.min(map.getMaxZoom(),map.getBoundsZoom(osPrivateBounds,true));
+  map.setMinZoom(coverZoom);
+  if(resetView||map.getZoom()<coverZoom){
+    const current=map.getCenter(),centre=osPrivateBounds.contains(current)?current:osPrivateBounds.getCenter();
+    map.setView(centre,Math.max(coverZoom,map.getZoom()),{animate:false});
+  }
+  map.panInsideBounds(osPrivateBounds,{animate:false});
+}
+
 function osStatus(msg){$('osLocalStatus').textContent=msg;}
 const OS_DB='bampton-fair-os-map-v11',OS_STORE='privateOsFile';
 function openPrivateOsDb(){
@@ -254,14 +269,15 @@ async function loadPrivateOsFile(file){
     if(map.hasLayer(baseTiles))map.removeLayer(baseTiles);
     // Restrict panning to the actual extent of the council extract, with minimal edge tolerance.
     map.setMaxBounds(osPrivateBounds.pad(0.02));
-    map.options.maxBoundsViscosity=0.85;
+    map.options.maxBoundsViscosity=1;
+    if(prePrivateMinZoom===null)prePrivateMinZoom=map.getMinZoom();
     if(oldLayer)map.removeLayer(oldLayer);
     if(oldUrl)URL.revokeObjectURL(oldUrl);
     const p=selectedPitch();
-    // Do not include locations outside the private SVG extent or the map may show empty margins.
-    map.fitBounds(osPrivateBounds,{animate:false,maxZoom:20,padding:[5,5]});
+    // Fill the map viewport by cropping the SVG at the sides if necessary (never letterbox).
+    coverPrivateOsMap(true);
     osStatus('Private OS MasterMap ONLY — OpenStreetMap tiles hidden. This council map stays on this device; press Show OpenStreetMap instead to swap maps.');
-    setTimeout(()=>map.invalidateSize(),50);
+    setTimeout(()=>coverPrivateOsMap(),80);
   }catch(error){osStatus('Could not open private map: '+String(error.message||error).slice(0,120));}
 }
 $('osLocalFile').addEventListener('change',async e=>{
@@ -283,6 +299,7 @@ $('osFallback').onclick=()=>{
   osPrivateBounds=null;
   map.setMaxBounds(null);
   map.options.maxBoundsViscosity=0;
+  if(prePrivateMinZoom!==null){map.setMinZoom(prePrivateMinZoom);prePrivateMinZoom=null;}
   if(!map.hasLayer(baseTiles))baseTiles.addTo(map);
   $('osLocalFile').value='';
   osStatus('OpenStreetMap ONLY — private OS overlay hidden. You can reload the private OS SVG to switch back.');
@@ -309,7 +326,7 @@ function tileDiagnostics(){
 let leafletTileErrors=0;
 let leafletTileLoads=0;
 let initialMapLoaded=false;
-function refreshMapSize(){if(!map?._loaded)return;map.invalidateSize({pan:false,animate:false});}
+function refreshMapSize(){if(!map?._loaded)return;map.invalidateSize({pan:false,animate:false});if(osPrivateOverlay)coverPrivateOsMap();}
 function scheduleMapResize(){[0,300,900,1800].forEach(ms=>setTimeout(refreshMapSize,ms));}
 window.addEventListener('resize',scheduleMapResize);
 window.addEventListener('pageshow',scheduleMapResize);
