@@ -49,7 +49,7 @@
 .walk-controls button.active{background:#f58220;color:#161b1e;border-color:#f58220}
 .walk-controls input[type="range"]{width:95px;accent-color:#ff8b24}
 .walk-controls label{font-size:11px;color:#dee2e4;margin:0}
-.walk-controls .secondary-key{max-width:140px;width:140px;margin:0;font-size:11px;padding:7px}
+.walk-controls .secondary-key{max-width:140px;width:140px;margin:0;font-size:11px;padding:7px}.walk-controls #walkScope{width:auto;min-width:120px;margin:0;padding:6px;font-size:11px;background:#14191b;color:white;border:1px solid #68727a}
 .walk-controls .walk-status{font-size:11px;color:#ffd29c;flex-basis:100%;line-height:1.25}
 .walk-controls button[disabled]{opacity:.5;cursor:not-allowed}.walk-align{display:flex;align-items:center;flex-wrap:wrap;gap:5px;width:100%;border-top:1px solid #4b545a;padding-top:7px}.walk-align strong{font:700 11px Arial;color:#fcd0a4;margin-right:8px}.walk-align button{padding:4px 8px;min-width:29px;font-size:14px}.walk-align small{font-size:10px;color:#d7e0e3;margin-left:5px}
 .streetview-setup{height:100%;overflow:auto;padding:12px}
@@ -69,7 +69,7 @@
 .pitch-footprint-label{display:block;background:#1f2529eb;border:1px solid #f58220;border-radius:5px;color:#fff;padding:2px 4px;font:bold 10px Arial;text-align:center;white-space:nowrap;box-shadow:0 2px 7px #0005}
 .pitchitem .areaTag{display:block;color:#fbc48c;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.35px;margin-top:3px}
 #movePitch.armed{background:#f58220;color:#111!important} #streetviewJs{position:absolute;inset:0;width:100%;height:100%;min-height:0} #walk3dCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:700} .pitch-hover{background:#202529;color:#fff;border:1px solid #f58220;border-radius:9px;padding:9px 12px;box-shadow:0 5px 20px #0008;line-height:1.5} .pitch-hover strong{color:#ffa64d;font-size:13px}.pitch-drag-handle{width:20px;height:20px;border:1px solid #50585c;border-radius:4px;background:#f5f2e9;color:#111;box-shadow:0 1px 4px #0007;display:grid;place-items:center;cursor:grab;touch-action:none;position:relative}.pitch-drag-handle::before,.pitch-drag-handle::after{content:'';display:block;position:absolute;background:#111;border-radius:2px}.pitch-drag-handle::before{width:12px;height:2.5px}.pitch-drag-handle::after{width:2.5px;height:12px}.pitch-map-label{color:#111;text-align:center;line-height:1.1;font:bold 11px Arial,sans-serif;text-shadow:0 1px 2px #fff,0 -1px 2px #fff;white-space:nowrap;pointer-events:none;transform:translate(-50%,-50%);width:max-content;max-width:110px;overflow:hidden;text-overflow:ellipsis}.leaflet-tooltip.pitch-hover-wrap,.leaflet-tooltip.pitch-hover-wrap .pitch-hover{color:#111;background:#fffaf0}.leaflet-tooltip.pitch-hover-wrap .pitch-hover strong{color:#111}.leaflet-tooltip.pitch-hover-wrap{border-color:#333}.leaflet-tooltip.pitch-hover-wrap{font:12px/1.3 Arial,sans-serif!important;max-width:190px!important;white-space:normal!important;padding:5px 7px!important;box-shadow:0 2px 6px #0004!important}.leaflet-tooltip.pitch-hover-wrap .pitch-hover{font:12px/1.3 Arial,sans-serif!important;max-width:175px!important;padding:0!important;border:0!important;box-shadow:none!important}.leaflet-tooltip.pitch-hover-wrap .pitch-hover strong{font-size:12px!important;color:#111!important}.pitch-drag-handle:active{cursor:grabbing}.leaflet-tooltip.pitch-hover-wrap{pointer-events:none}.pitch-summary{min-width:195px;color:#263039;line-height:1.6;font-size:13px}.pitch-summary strong{color:#bc6015}.pitch-summary button{background:#f58220;color:#101010;border:0;border-radius:6px;padding:9px 12px;cursor:pointer;font-weight:bold;width:100%;margin-top:8px}.leaflet-popup-content-wrapper{border:2px solid #f58220}</style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V12.9 · ZOOM & HANDLE</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V13 · FAIR DAY WALKTHROUGH</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -102,7 +102,7 @@
 </div>
 <iframe id="streetviewFrame" title="Google Street View near selected pitch" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen loading="lazy" hidden></iframe><div id="streetviewJs" class="streetview-js" hidden aria-label="Interactive Street View with proposed pitch location overlays"></div>
 </div>
-<div class="walk-controls" id="walkControls"><button id="walkEnable" type="button">◉ Fair Day overlay (beta)</button><label for="walkOpacity">Visibility</label><input id="walkOpacity" type="range" min="10" max="100" step="5" value="55"><span id="walkOpacityValue" style="font-size:11px">55%</span><input id="walkJsKey" class="secondary-key" type="password" autocomplete="off" spellcheck="false" aria-label="Separate Maps JavaScript API key" placeholder="JavaScript API key"><button id="walkLoad" type="button">Start overlay</button><label class="small"><input id="show3d" type="checkbox"> 3D box test</label><div class="walk-align" aria-label="Adjust 3D demo placement"><strong>Align 3D preview</strong><button type="button" data-align="left" title="Nudge box left">←</button><button type="button" data-align="up" title="Nudge box away">↑</button><button type="button" data-align="down" title="Nudge box closer">↓</button><button type="button" data-align="right" title="Nudge box right">→</button><button type="button" data-align="reset" title="Reset 3D offset">Reset</button><small id="alignStatus">Demo-only offset: 0m E / 0m N</small></div><span id="walkStatus" class="walk-status">Preview mode: numbered pitch markers, not photorealistic stalls. Requires a separately authorised Maps JavaScript API key.</span></div>
+<div class="walk-controls" id="walkControls"><button id="walkEnable" type="button">◉ Fair Day overlay (beta)</button><label for="walkOpacity">Visibility</label><input id="walkOpacity" type="range" min="10" max="100" step="5" value="55"><span id="walkOpacityValue" style="font-size:11px">55%</span><input id="walkJsKey" class="secondary-key" type="password" autocomplete="off" spellcheck="false" aria-label="Separate Maps JavaScript API key" placeholder="JavaScript API key"><button id="walkLoad" type="button">Start overlay</button><label class="small"><input id="show3d" type="checkbox"> 3D boxes</label><label for="walkScope">Show</label><select id="walkScope" aria-label="Choose 3D stalls to show"><option value="selected">Selected stall</option><option value="all">All stalls</option></select><div class="walk-align" aria-label="Adjust 3D demo placement"><strong>Align 3D preview</strong><button type="button" data-align="left" title="Nudge box left">←</button><button type="button" data-align="up" title="Nudge box away">↑</button><button type="button" data-align="down" title="Nudge box closer">↓</button><button type="button" data-align="right" title="Nudge box right">→</button><button type="button" data-align="reset" title="Reset 3D offset">Reset</button><small id="alignStatus">Demo-only offset: 0m E / 0m N</small></div><span id="walkStatus" class="walk-status">Preview mode: numbered pitch markers, not photorealistic stalls. Requires a separately authorised Maps JavaScript API key.</span></div>
 <div class="streetview-footer"><span id="streetviewPosition">Select a pitch to inspect its surroundings.</span><div>Nearby imagery only · Check doorways, clearances and obstructions on site before approving a pitch.</div></div>
 </div></section></div>
 <aside class="right"><div class="section-title">Selected pitch</div><div id="empty" class="muted">Choose a pitch or create one.</div><div id="editor" hidden><div class="areaSummary" id="pitchFullDetails">Full pitch details</div>
@@ -610,10 +610,11 @@ let threeCanvas=null;
 const ALIGN_STORE='bamptonFair.walk3d.demoOffsets.v1';
 let alignOffsets={};
 try{const stored=JSON.parse(localStorage.getItem(ALIGN_STORE)||'{}');if(stored&&typeof stored==='object'&&!Array.isArray(stored))alignOffsets=stored;}catch(e){}
-function current3dOffset(){
- const p=selectedPitch(),v=p&&alignOffsets[p.id];
+function offsetFor3dPitch(p){
+ const v=p&&alignOffsets[p.id];
  return {east:Number.isFinite(v?.east)?v.east:0,north:Number.isFinite(v?.north)?v.north:0};
 }
+function current3dOffset(){return offsetFor3dPitch(selectedPitch());}
 function updateAlignmentStatus(){
  const o=current3dOffset();
  $('alignStatus').textContent='Demo-only: '+o.east.toFixed(1)+'m E / '+o.north.toFixed(1)+'m N';
@@ -641,6 +642,8 @@ function ensure3dCanvas(){
  return threeCanvas;
 }
 // Perspective-correct as an initial pinhole approximation, NOT calibrated to Google's image depth/occlusion.
+// V13: render the selected stall or the entire visible Fair with the same
+// approximate panorama projection. This never alters authoritative OS coordinates.
 function draw3dBox(){
  if(!threeCanvas)return;
  const container=$('streetviewJs'),width=container.clientWidth,height=container.clientHeight;
@@ -652,39 +655,73 @@ function draw3dBox(){
  const c=threeCanvas.getContext('2d');if(!c)return;
  c.setTransform(dpr,0,0,dpr,0,0);c.clearRect(0,0,width,height);
  if(!$('show3d').checked||!walkPanorama||container.hidden)return;
- const p=selectedPitch(),eye=walkPanorama.getPosition?.(),pov=walkPanorama.getPov?.();
- if(!p||!eye||!pov)return;
- const lat=eye.lat(),lng=eye.lng(),align=current3dOffset();
- const corners=polygon(p).map(v=>[(v[1]-lng)*111320*Math.cos(lat*Math.PI/180)+align.east,(v[0]-lat)*111320+align.north]);
- const pts=[...corners.map(v=>[v[0],v[1],0]),...corners.map(v=>[v[0],v[1],2.5])];
+ const eye=walkPanorama.getPosition?.(),pov=walkPanorama.getPov?.();
+ if(!eye||!pov)return;
+ const lat=eye.lat(),lng=eye.lng();
  const H=(pov.heading||0)*Math.PI/180,P=(pov.pitch||0)*Math.PI/180;
  const focal=width/(2*Math.tan((90/Math.pow(2,(walkPanorama.getZoom?.()||1)-1))*Math.PI/360));
  const project=v=>{
-    const right=v[0]*Math.cos(H)-v[1]*Math.sin(H);
-    const forward=v[0]*Math.sin(H)+v[1]*Math.cos(H);
-    const up=v[2]-2.3;
-    const depth=forward*Math.cos(P)+up*Math.sin(P);
-    const vertical=up*Math.cos(P)-forward*Math.sin(P);
-    if(depth<0.65)return null;
-    return [width/2+focal*right/depth,height/2-focal*vertical/depth,depth];
+   const right=v[0]*Math.cos(H)-v[1]*Math.sin(H);
+   const forward=v[0]*Math.sin(H)+v[1]*Math.cos(H);
+   const up=v[2]-2.3;
+   const depth=forward*Math.cos(P)+up*Math.sin(P);
+   const vertical=up*Math.cos(P)-forward*Math.sin(P);
+   if(depth<0.65)return null;
+   return [width/2+focal*right/depth,height/2-focal*vertical/depth,depth];
  };
- const out=pts.map(project),faces=[[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[4,5,6,7]];
- faces.map((ids,i)=>({ids,i,v:ids.map(k=>out[k])})).filter(f=>f.v.every(Boolean))
-    .sort((a,b)=>b.v.reduce((t,x)=>t+x[2],0)-a.v.reduce((t,x)=>t+x[2],0))
-    .forEach(f=>{
-      c.beginPath();c.moveTo(f.v[0][0],f.v[0][1]);
-      f.v.slice(1).forEach(v=>c.lineTo(v[0],v[1]));c.closePath();
-      c.fillStyle=f.i===4?'rgba(255,220,80,.27)':'rgba(245,130,32,.34)';
-      c.strokeStyle='#ff9b37';c.lineWidth=2.5;c.fill();c.stroke();
-    });
- const centre=project([(p.lng-lng)*111320*Math.cos(lat*Math.PI/180)+align.east,(p.lat-lat)*111320+align.north,2.5]);
- if(centre&&centre[0]>0&&centre[0]<width&&centre[1]>10&&centre[1]<height){
-   c.font='bold 13px Arial';const label=String(p.code)+' · '+p.front+'×'+p.depth+'×2.5m';const tw=c.measureText(label).width;
-   c.fillStyle='#202529d9';c.fillRect(centre[0]-tw/2-8,centre[1]-30,tw+16,24);
-   c.fillStyle='white';c.fillText(label,centre[0]-tw/2,centre[1]-13);
+ const all=$('walkScope').value==='all';
+ const candidates=all?pitches:[selectedPitch()].filter(Boolean);
+ const drawable=[];
+ for(const p of candidates){
+   if(!p||!Number.isFinite(p.lat)||!Number.isFinite(p.lng))continue;
+   const offset=offsetFor3dPitch(p);
+   const east=(p.lng-lng)*111320*Math.cos(lat*Math.PI/180)+offset.east;
+   const north=(p.lat-lat)*111320+offset.north;
+   // Avoid rendering distant projections that would cover the entire panorama.
+   if(Math.hypot(east,north)>85)continue;
+   const corners=polygon(p).map(v=>[(v[1]-lng)*111320*Math.cos(lat*Math.PI/180)+offset.east,(v[0]-lat)*111320+offset.north]);
+   const vertices=[...corners.map(v=>[v[0],v[1],0]),...corners.map(v=>[v[0],v[1],2.5])].map(project);
+   const faces=[[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[4,5,6,7]];
+   const selected=p.id===selectedPitch()?.id;
+   for(const ids of faces){
+     const v=ids.map(k=>vertices[k]);
+     // Skip near-plane crossings instead of stretching faces across Street View.
+     if(v.some(x=>!x))continue;
+     const depth=v.reduce((total,x)=>total+x[2],0)/v.length;
+     drawable.push({type:'face',v,depth,selected});
+   }
+   const centre=project([east,north,2.5]);
+   if(centre&&centre[0]>-100&&centre[0]<width+100&&centre[1]>-30&&centre[1]<height+40){
+     drawable.push({type:'label',centre,depth:centre[2],p,selected});
+   }
+ }
+ // Painter's algorithm across all stalls, not just each cube individually.
+ drawable.sort((a,b)=>b.depth-a.depth || (a.type==='label'?1:-1));
+ const opacity=Number($('walkOpacity').value)/100;
+ for(const item of drawable){
+   if(item.type==='face'){
+     const v=item.v;
+     c.beginPath();c.moveTo(v[0][0],v[0][1]);
+     v.slice(1).forEach(pt=>c.lineTo(pt[0],pt[1]));c.closePath();
+     c.fillStyle=item.selected?'rgba(0,214,214,'+(opacity*.42)+')':'rgba(245,130,32,'+(opacity*.55)+')';
+     c.strokeStyle=item.selected?'#00d6d6':'#ff9b37';
+     c.lineWidth=item.selected?2.8:1.8;
+     c.fill();c.stroke();
+   }else{
+     const {centre,p,selected}=item;
+     const label=String(p.code||'STALL')+(all?'':' · '+p.front+'×'+p.depth+'×2.5m');
+     c.font=(selected?'bold ':'')+'12px Arial';
+     const tw=c.measureText(label).width;
+     const lx=Math.min(width-tw/2-9,Math.max(tw/2+9,centre[0]));
+     const ly=Math.max(22,Math.min(height-8,centre[1]-14));
+     c.fillStyle=selected?'#123c43df':'#202529de';
+     c.fillRect(lx-tw/2-6,ly-15,tw+12,19);
+     c.fillStyle='#fff';c.fillText(label,lx-tw/2,ly-2);
+   }
  }
 }
-$('show3d').onchange=()=>{ensure3dCanvas();if(walkPanorama){syncWalkMarkers();draw3dBox();}};
+$('show3d').onchange=()=>{ensure3dCanvas();if(walkPanorama)syncWalkMarkers();};
+$('walkScope').onchange=()=>{if(walkPanorama)syncWalkMarkers();else draw3dBox();};
 window.addEventListener('resize',draw3dBox);
 let walkLastSelected=null;
 const walkStatus=message=>{$('walkStatus').textContent=message};
@@ -696,7 +733,7 @@ function syncWalkMarkers(){
   const alpha=walkOpacity();
   for(let idx=0;idx<pitches.length;idx++){
     const p=pitches[idx];
-    if($('show3d').checked&&p.id===selected)continue;
+    if($('show3d').checked&&($('walkScope').value==='all'||p.id===selected))continue;
     if(!Number.isFinite(p.lat)||!Number.isFinite(p.lng))continue;
     const active=p.id===selected;
     const marker=new google.maps.Marker({
@@ -711,7 +748,7 @@ function syncWalkMarkers(){
     marker.addListener('click',()=>choose(p.id));
     walkMarkers.push(marker);
   }
-  walkStatus($('show3d').checked?'3D PROTOTYPE · 2.5m estimated height, indicative perspective only. Not validated for real-world clearance.':'Showing '+walkMarkers.length+' geographically located pitch markers. 3D boxes are optional.');draw3dBox();
+  walkStatus($('show3d').checked?($('walkScope').value==='all'?'FAIR DAY WALKTHROUGH · '+pitches.length+' mapped stalls available (nearby ones drawn). 2.5m estimated height; indicative positions only.':'SELECTED STALL · 2.5m estimated height; indicative position only.'):'Showing '+walkMarkers.length+' geographically located pitch markers. Enable 3D boxes to see footprints.');draw3dBox();
 }
 function updateWalkthrough(){
   updateAlignmentStatus();
