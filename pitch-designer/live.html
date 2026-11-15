@@ -83,7 +83,7 @@
 #mapOverview{width:100%}
 @media(max-width:760px){.fair-map-nav{top:49px;right:7px;transform:scale(.88);transform-origin:top right}}
 </style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V15.1 · FAIR-CENTRED START</div><a id="fairDashboardLink" href="https://www.bamptoncharterfair.org.uk/fair-dashboard" target="_top" rel="noopener" title="Return to Fair Dashboard" style="display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:9px 12px;border-radius:8px;background:#292e32;color:white;border:1px solid #eee;text-decoration:none;font-weight:800">⌂ Fair Dashboard</a><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V15.2 · FACILITY IDS + CHILDREN'S ZONE</div><a id="fairDashboardLink" href="https://www.bamptoncharterfair.org.uk/fair-dashboard" target="_top" rel="noopener" title="Return to Fair Dashboard" style="display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:9px 12px;border-radius:8px;background:#292e32;color:white;border:1px solid #eee;text-decoration:none;font-weight:800">⌂ Fair Dashboard</a><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -105,6 +105,7 @@
 <option value="toilets">Toilets</option>
 <option value="barriers">Barriers</option>
 <option value="funfair">Fun Fair</option>
+<option value="newton_square">Newton Square — facility/area</option>
 </select></div>
 <button id="addFacility" type="button" style="width:100%">+ Add selected facility</button>
 <div class="status" id="facilityStatus">No facility selected. Select a type, then add it.</div>
@@ -205,7 +206,8 @@ const FAIR_AREAS=Object.freeze([
   {value:'STREET',label:'Street stalls',prefix:'S',description:'Brook Street / Castle Street / Newton Square / Luke Street'},
   {value:'CHURCH',label:'Church stalls',prefix:'CH',description:'Independent church pitch sequence'},
   {value:'CRAFT',label:'Craft stalls',prefix:'CR',description:'Independent craft pitch sequence'},
-  {value:'RIVERSIDE_HALL',label:'Riverside Hall stalls',prefix:'RH',description:'Independent hall pitch sequence'}
+  {value:'RIVERSIDE_HALL',label:'Riverside Hall stalls',prefix:'RH',description:'Independent hall pitch sequence'},
+  {value:'CHILDRENS_ZONE',label:"Children's Zone pitches",prefix:'CZ',description:'Activity and performance allocations, e.g. Punch and Judy'}
 ]);
 const groupFor=p=>FAIR_AREAS.some(x=>x.value===p?.zone)?p.zone:'STREET';
 function groupMeta(id){return FAIR_AREAS.find(x=>x.value===id)||FAIR_AREAS[0];}
@@ -576,7 +578,7 @@ function render(){
  for(const id of ['pitchAreaField','pitchPresetField','pitchTraderField','pitchCodeField'])$(id).hidden=isFacility;
  $('sharedFacilityNameField').hidden=!isFacility;
  if(p){
-  $('pitchFullDetails').textContent=isFacility?'FAIR FACILITY · '+p.name+' · '+p.front+'m × '+p.depth+'m · browser draft only':
+  $('pitchFullDetails').textContent=isFacility?'FAIR FACILITY · '+p.code+' · '+p.name+' · '+p.front+'m × '+p.depth+'m · browser draft only':
   'FULL DETAILS · '+p.code+' · '+p.trader+' · '+(p.testProduct||p.demoProducts||'Products not recorded')+' · '+(p.testStallType||'Type not recorded')+' · '+(p.status||'DRAFT');
   if(!isFacility){$('pitchArea').value=groupFor(p);paintFrontPresets(p);$('code').value=p.code;$('trader').value=p.trader;}
   else $('sharedFacilityName').value=p.name;
@@ -1139,12 +1141,29 @@ const FACILITY_TYPES={
  music_stage:{label:'Music Stage',w:6,d:4,icon:'🎵',colour:'#e19a19'},
  toilets:{label:'Toilets',w:4,d:3,icon:'🚻',colour:'#327eb6'},
  barriers:{label:'Barriers',w:6,d:1,icon:'🚧',colour:'#bd6838'},
- funfair:{label:'Fun Fair',w:20,d:15,icon:'🎡',colour:'#b14646'}
+ funfair:{label:'Fun Fair',w:20,d:15,icon:'🎡',colour:'#b14646'},
+ newton_square:{label:'Newton Square',w:6,d:6,icon:'📍',colour:'#4d9e87'}
 };
 let facilities=[],selectedFacility=null,placingFacility=false;
+const FACILITY_COUNTER_KEY='bamptonFair.facilities.nextCode.v1';
+let facilityCounter=1;
+try{const stored=Number(localStorage.getItem(FACILITY_COUNTER_KEY));if(Number.isSafeInteger(stored)&&stored>0)facilityCounter=stored;}catch(_e){}
+function facilityCodeNumber(code){const match=/^F-(\\d{3,})$/.exec(String(code||''));return match?Number(match[1]):null;}
+function facilityCode(n){return 'F-'+String(n).padStart(3,'0');}
+function allocateFacilityCode(){
+ const used=new Set(facilities.map(f=>f.code));
+ while(used.has(facilityCode(facilityCounter)))facilityCounter++;
+ const code=facilityCode(facilityCounter++);
+ try{localStorage.setItem(FACILITY_COUNTER_KEY,String(facilityCounter));}catch(_e){}
+ return code;
+}
 try{const a=JSON.parse(localStorage.getItem(FACILITY_STORE)||'[]');
  if(Array.isArray(a))facilities=a.filter(x=>FACILITY_TYPES[x.type]&&Number.isFinite(x.lat)&&Number.isFinite(x.lng)&&Number.isFinite(x.front)&&Number.isFinite(x.depth)&&Number.isFinite(x.angle)&&x.front>0&&x.depth>0).slice(0,100);
 }catch(_e){}
+// One-time migration of existing browser drafts: allocate codes without altering IDs.
+for(const f of facilities){const n=facilityCodeNumber(f.code);if(n!==null&&Number.isSafeInteger(n))facilityCounter=Math.max(facilityCounter,n+1);}
+for(const f of facilities){if(!facilityCodeNumber(f.code))f.code=allocateFacilityCode();}
+try{localStorage.setItem(FACILITY_COUNTER_KEY,String(facilityCounter));localStorage.setItem(FACILITY_STORE,JSON.stringify(facilities));}catch(_e){}
 const facilityLayer=L.layerGroup().addTo(map);
 function saveFacilities(){
  try{localStorage.setItem(FACILITY_STORE,JSON.stringify(facilities));}
@@ -1156,8 +1175,8 @@ function displayFacilities(){
  for(const f of facilities){
   const b=document.createElement('button');b.type='button';
   b.className='facilityitem'+(f.id===selectedFacility?' selected':'');
-  const strong=document.createElement('strong');strong.textContent=FACILITY_TYPES[f.type].icon+' '+f.name;
-  const tiny=document.createElement('small');tiny.textContent=f.front+'m × '+f.depth+'m · draft';
+  const strong=document.createElement('strong');strong.textContent=f.code+' · '+FACILITY_TYPES[f.type].icon+' '+f.name;
+  const tiny=document.createElement('small');tiny.textContent=f.front+'m × '+f.depth+'m · draft'+(f.type==='newton_square'?' · dimensions unverified':'');
   b.append(strong,tiny);b.onclick=()=>{selectedFacility=f.id;selected=null;placingFacility=false;toggleMove(false);render();displayFacilities();};
   list.append(b);
  }
@@ -1179,7 +1198,7 @@ function drawFacilities(){
    weight:active?4:2,fillColor:t.colour,fillOpacity:active?.36:.22,
    dashArray:conflict?'4 3':null
   }).addTo(facilityLayer);
-  poly.bindTooltip(f.name+' · '+f.front+'m × '+f.depth+'m'+(conflict?' · POSSIBLE OVERLAP':' · UNVERIFIED'),{sticky:true,direction:'top'});
+  poly.bindTooltip(f.code+' · '+f.name+' · '+f.front+'m × '+f.depth+'m'+(conflict?' · POSSIBLE OVERLAP':' · UNVERIFIED'),{sticky:true,direction:'top'});
   function chooseFacility(){
    selectedFacility=f.id;selected=null;placingFacility=false;toggleMove(false);
    render();displayFacilities();
@@ -1192,7 +1211,7 @@ function drawFacilities(){
   const footprintPixels=Math.max(...px.map(v=>v.x))-Math.min(...px.map(v=>v.x));
   const labelWidth=Math.max(24,Math.min(110,Math.floor(footprintPixels-8)));
   const labelHtml=zoom>=19&&labelWidth>=40?
-   '<div class="pitch-map-label" style="max-width:'+labelWidth+'px;font-size:10px;transform:translate(-50%,-50%) scale('+scale+')">'+safeHtml(f.name)+'</div>':'';
+   '<div class="pitch-map-label" style="max-width:'+labelWidth+'px;font-size:10px;transform:translate(-50%,-50%) scale('+scale+')">'+safeHtml(f.code+' · '+f.name)+'</div>':'';
   const label=L.marker([f.lat,f.lng],{interactive:false,keyboard:false,icon:L.divIcon({
    className:'',html:labelHtml,iconSize:[0,0],iconAnchor:[0,0]
   })}).addTo(facilityLayer);
@@ -1232,7 +1251,7 @@ $('addFacility').onclick=()=>{
  const type=$('facilityType').value,t=FACILITY_TYPES[type];if(!t)return;
  const c=map.getCenter();
  const facility={id:'facility-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),
-  type,name:t.label,appearance:type==='music_stage'?'stage_illustrated':'basic_3d',lat:c.lat,lng:c.lng,front:t.w,depth:t.d,angle:0,status:'DRAFT',eventYear:Number($('eventYear').value)||2027};
+  code:allocateFacilityCode(),type,name:t.label,appearance:type==='music_stage'?'stage_illustrated':'basic_3d',lat:c.lat,lng:c.lng,front:t.w,depth:t.d,angle:0,status:'DRAFT',eventYear:Number($('eventYear').value)||2027};
  facilities.push(facility);selectedFacility=facility.id;selected=null;placingFacility=true;toggleMove(false);
  saveFacilities();render();displayFacilities();
 };
