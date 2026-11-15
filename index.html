@@ -155,8 +155,8 @@ function pasteStallIntoMessage(label){
  // Keep existing radio notes and insert at the current caret position.
  const start=Number.isInteger(field.selectionStart)?field.selectionStart:current.length;
  const end=Number.isInteger(field.selectionEnd)?field.selectionEnd:current.length;
- const prefix=start>0&&!/\\s$/.test(current.slice(0,start))?' ':'';
- const suffix=end<current.length&&!/^\\s/.test(current.slice(end))?' ':'';
+ const prefix=start>0&&!/\s$/.test(current.slice(0,start))?' ':'';
+ const suffix=end<current.length&&!/^\s/.test(current.slice(end))?' ':'';
  const insertion=prefix+label+' — '+suffix;
  field.value=current.slice(0,start)+insertion+current.slice(end);
  field.focus();
@@ -179,8 +179,8 @@ function bindStallPasteButtons(container){
 }
 function stallCards(query){
  query=query.trim().toLowerCase();if(!query)return '';
- const numberQuery=/^\\d+[a-z]?$/.test(query);
- const norm=n=>String(n||'').toLowerCase().trim().replace(/^0+(?=\\d)/,'');
+ const numberQuery=/^\d+[a-z]?$/.test(query);
+ const norm=n=>String(n||'').toLowerCase().trim().replace(/^0+(?=\d)/,'');
  const searchable=x=>['Stall Number','STALL NAME','First Name','Second Name','Selling','Stall Location on Street','Street','Access Road','Parking Location'].some(k=>String(x[k]||'').toLowerCase().includes(query));
  const matches=S.stalls.map((record,index)=>({record,index}))
    .filter(({record})=>numberQuery?norm(record['Stall Number'])===norm(query):searchable(record))
