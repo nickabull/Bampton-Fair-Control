@@ -74,7 +74,7 @@
 .pitch-footprint-label{display:block;background:#1f2529eb;border:1px solid #f58220;border-radius:5px;color:#fff;padding:2px 4px;font:bold 10px Arial;text-align:center;white-space:nowrap;box-shadow:0 2px 7px #0005}
 .pitchitem .areaTag{display:block;color:#fbc48c;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.35px;margin-top:3px}
 #movePitch.armed{background:#f58220;color:#111!important} #streetviewJs{position:absolute;inset:0;width:100%;height:100%;min-height:0} #walk3dCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:700} .pitch-hover{background:#202529;color:#fff;border:1px solid #f58220;border-radius:9px;padding:9px 12px;box-shadow:0 5px 20px #0008;line-height:1.5} .pitch-hover strong{color:#ffa64d;font-size:13px}.pitch-drag-handle{width:20px;height:20px;border:1px solid #50585c;border-radius:4px;background:#f5f2e9;color:#111;box-shadow:0 1px 4px #0007;display:grid;place-items:center;cursor:grab;touch-action:none;position:relative}.pitch-drag-handle::before,.pitch-drag-handle::after{content:'';display:block;position:absolute;background:#111;border-radius:2px}.pitch-drag-handle::before{width:12px;height:2.5px}.pitch-drag-handle::after{width:2.5px;height:12px}.pitch-map-label{color:#111;text-align:center;line-height:1.1;font:bold 11px Arial,sans-serif;text-shadow:0 1px 2px #fff,0 -1px 2px #fff;white-space:nowrap;pointer-events:none;transform:translate(-50%,-50%);width:max-content;max-width:110px;overflow:hidden;text-overflow:ellipsis}.leaflet-tooltip.pitch-hover-wrap,.leaflet-tooltip.pitch-hover-wrap .pitch-hover{color:#111;background:#fffaf0}.leaflet-tooltip.pitch-hover-wrap .pitch-hover strong{color:#111}.leaflet-tooltip.pitch-hover-wrap{border-color:#333}.leaflet-tooltip.pitch-hover-wrap{font:12px/1.3 Arial,sans-serif!important;max-width:190px!important;white-space:normal!important;padding:5px 7px!important;box-shadow:0 2px 6px #0004!important}.leaflet-tooltip.pitch-hover-wrap .pitch-hover{font:12px/1.3 Arial,sans-serif!important;max-width:175px!important;padding:0!important;border:0!important;box-shadow:none!important}.leaflet-tooltip.pitch-hover-wrap .pitch-hover strong{font-size:12px!important;color:#111!important}.pitch-drag-handle:active{cursor:grabbing}.leaflet-tooltip.pitch-hover-wrap{pointer-events:none}.pitch-summary{min-width:195px;color:#263039;line-height:1.6;font-size:13px}.pitch-summary strong{color:#bc6015}.pitch-summary button{background:#f58220;color:#101010;border:0;border-radius:6px;padding:9px 12px;cursor:pointer;font-weight:bold;width:100%;margin-top:8px}.leaflet-popup-content-wrapper{border:2px solid #f58220}</style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V13.4 · FAIR FACILITIES</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V13.5 · FACILITY DRAG FIX</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -418,6 +418,7 @@ map.on('zoomend',()=>draw());
 function safeHtml(x){return String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
 function pitchTooltip(p){return '<div class="pitch-hover"><strong>'+safeHtml(p.code)+'</strong> · '+safeHtml(p.front)+' × '+safeHtml(p.depth)+'m<br><span>Click stall for details</span></div>';}
 function openPitchDetailsPopup(p,latlng){
+ selectedFacility=null;placingFacility=false;displayFacilities();
  if(selected!==p.id){selected=p.id;toggleMove(false);render();}
  map.closeTooltip();
  const box=document.createElement('div');box.className='pitch-summary';
@@ -460,7 +461,7 @@ if(active){
   marker.on('dragend',()=>{save();render();if(!$('streetviewPane').hidden&&(streetViewKey||walkPanorama))updateStreetView();});
 }
 layers[p.id]={poly,marker,label};}drawFacilities();const selectedItem=selectedPitch();const box=$('warnings');if(selectedItem){const matches=pitches.filter(p=>p.id!==selectedItem.id&&satOverlap(p,selectedItem));box.textContent=matches.length?'⚠ PITCH OVERLAP: '+matches.map(x=>x.code).join(', '):'✓ No overlaps with the other draft pitches. Other hazards are NOT checked.';box.className='status '+(matches.length?'warning':'ok');$('coords').textContent=selectedItem.lat.toFixed(6)+', '+selectedItem.lng.toFixed(6)+' (WGS84)';}}
-function choose(id){selected=id;toggleMove(false);render();if(!$('streetviewPane').hidden&&(streetViewKey||walkPanorama))updateStreetView();}
+function choose(id){selected=id;selectedFacility=null;placingFacility=false;toggleMove(false);render();displayFacilities();if(!$('streetviewPane').hidden&&(streetViewKey||walkPanorama))updateStreetView();}
 function render(){const p=selectedPitch();paintAreaSummary();refreshTestDropdown();$('pitchlist').replaceChildren();for(const q of pitches.filter(q=>groupFor(q)===areaFilter)){const b=document.createElement('button');b.className='pitchitem'+(q.id===selected?' selected':'');const title=document.createElement('strong');title.textContent=q.code;const sub=document.createElement('span');sub.textContent=q.trader+' · '+q.front+'m × '+q.depth+'m';const areaTag=document.createElement('span');areaTag.className='areaTag';areaTag.textContent=groupMeta(groupFor(q)).label;b.append(title,sub,areaTag);if(q.testTraderId){const t=document.createElement('span');t.className='areaTag';t.textContent='FICTIONAL '+q.testTraderId;b.append(t);}b.onclick=()=>choose(q.id);$('pitchlist').append(b);}$('editor').hidden=!p;$('empty').hidden=!!p;if(p){$('pitchFullDetails').textContent='FULL DETAILS · '+p.code+' · '+p.trader+' · '+(p.testProduct||p.demoProducts||'Products not recorded')+' · '+(p.testStallType||'Type not recorded')+' · '+(p.status||'DRAFT');$('pitchArea').value=groupFor(p);paintFrontPresets(p);for(const [key,id] of [['code','code'],['trader','trader'],['front','front'],['depth','depth'],['angle','angle']])$(id).value=p[key]}draw();}
 for(const [id,key] of [['code','code'],['trader','trader'],['front','front'],['depth','depth'],['angle','angle']])$(id).addEventListener('change',()=>{const p=selectedPitch();if(!p)return;let val=$(id).value;if(['front','depth','angle'].includes(key)){val=Number(val);if(!Number.isFinite(val))return;if(key==='front')val=Math.max(.5,Math.min(30,val));if(key==='depth')val=Math.max(.5,Math.min(20,val));if(key==='angle')val=((val%360)+360)%360;}p[key]=val;save();render();if(!$('streetviewPane').hidden&&streetViewKey)updateStreetView()});
 for(const b of document.querySelectorAll('[data-rotate]'))b.onclick=()=>{const p=selectedPitch();if(!p)return;p.angle=(p.angle+Number(b.dataset.rotate)+360)%360;save();render();if(!$('streetviewPane').hidden&&streetViewKey)updateStreetView()};
@@ -996,7 +997,7 @@ function displayFacilities(){
   b.className='facilityitem'+(f.id===selectedFacility?' selected':'');
   const strong=document.createElement('strong');strong.textContent=FACILITY_TYPES[f.type].icon+' '+f.name;
   const tiny=document.createElement('small');tiny.textContent=f.front+'m × '+f.depth+'m · draft';
-  b.append(strong,tiny);b.onclick=()=>{selectedFacility=f.id;placingFacility=false;displayFacilities();drawFacilities();};
+  b.append(strong,tiny);b.onclick=()=>{selectedFacility=f.id;selected=null;placingFacility=false;toggleMove(false);render();displayFacilities();};
   list.append(b);
  }
  const f=facilityCurrent();$('facilityEditor').hidden=!f;
@@ -1011,23 +1012,25 @@ function drawFacilities(){
  for(const f of facilities){
   const active=f.id===selectedFacility,t=FACILITY_TYPES[f.type];
   const conflict=pitches.some(p=>satOverlap(p,f))||facilities.some(other=>other.id!==f.id&&satOverlap(other,f));
-  const polygonLayer=L.polygon(polygon(f),{
-   color:conflict?'#e84b4b':active?'#fff2aa':t.colour,weight:active?4:2,
-   fillColor:t.colour,fillOpacity:.32,dashArray:conflict?'4 3':null
-  }).addTo(facilityLayer);
-  const text=t.icon+' '+f.name+' · '+f.front+'m × '+f.depth+'m'+(conflict?' · POSSIBLE FOOTPRINT OVERLAP':' · UNVERIFIED');
-  polygonLayer.bindTooltip(text,{sticky:true,direction:'top'});
-  polygonLayer.on('click',e=>{L.DomEvent.stopPropagation(e);selectedFacility=f.id;placingFacility=false;displayFacilities();drawFacilities();});
-  L.marker([f.lat,f.lng],{interactive:false,icon:L.divIcon({className:'',
-    html:'<div style="font:bold 12px Arial;background:#202529e8;color:#fff;border:1px solid #ffad50;border-radius:5px;padding:4px 6px;white-space:nowrap;transform:translate(-50%,-50%)">'+safeHtml(t.icon+' '+f.name)+'</div>',
-    iconSize:[0,0],iconAnchor:[0,0]})}).addTo(facilityLayer);
+  const poly=L.polygon(polygon(f),{color:conflict?'#e84b4b':active?'#fff2aa':t.colour,weight:active?4:2,fillColor:t.colour,fillOpacity:.32,dashArray:conflict?'4 3':null}).addTo(facilityLayer);
+  poly.bindTooltip(f.name+' · '+f.front+'m × '+f.depth+'m'+(conflict?' · POSSIBLE OVERLAP':' · UNVERIFIED'),{sticky:true,direction:'top'});
+  poly.on('click',e=>{L.DomEvent.stopPropagation(e);selectedFacility=f.id;selected=null;placingFacility=false;toggleMove(false);render();displayFacilities();});
+  const label=L.marker([f.lat,f.lng],{interactive:false,icon:L.divIcon({className:'',html:'<div style="color:#111;font:bold 13px Arial;text-shadow:0 1px 1px #fff9;white-space:nowrap;pointer-events:none;transform:translate(-50%,-50%)">'+safeHtml(f.name)+'</div>',iconSize:[0,0],iconAnchor:[0,0]})}).addTo(facilityLayer);
+  if(active){
+   // Facility drag cross, independent from pitch selection and pitch drag handles.
+   const pts=polygon(f).map(ll=>map.latLngToLayerPoint(ll));
+   const top=pts.reduce((a,b)=>b.y<a.y?b:a),centre=map.latLngToLayerPoint([f.lat,f.lng]);
+   const away=top.subtract(centre),norm=Math.hypot(away.x,away.y)||1;
+   const point=top.add(L.point(away.x/norm*16,away.y/norm*16));
+   const position=map.layerPointToLatLng(point),offset=[f.lat-position.lat,f.lng-position.lng];
+   const handle=L.marker(position,{draggable:true,zIndexOffset:1500,icon:L.divIcon({className:'',html:'<div class="pitch-drag-handle" title="Drag to move facility" aria-label="Drag to move facility"></div>',iconSize:[20,20],iconAnchor:[10,10]})}).addTo(facilityLayer);
+   handle.on('dragstart',()=>{map.closePopup();map.closeTooltip();});
+   handle.on('drag',e=>{const ll=e.target.getLatLng();f.lat=ll.lat+offset[0];f.lng=ll.lng+offset[1];poly.setLatLngs(polygon(f));label.setLatLng([f.lat,f.lng]);});
+   handle.on('dragend',()=>{saveFacilities();displayFacilities();drawFacilities();});
+  }
  }
- const f=facilityCurrent();
- const clashes=f&&(pitches.some(p=>satOverlap(p,f))||facilities.some(o=>o.id!==f.id&&satOverlap(o,f)));
- $('facilityStatus').textContent=!f?'Choose a facility to edit, or add a new one.':
-   (placingFacility?'Click the map to place '+f.name+'. Esc to cancel.':
-   (clashes?'⚠ Facility footprint overlaps another draft footprint. ':'')+
-   'Selected: '+f.name+' · '+f.front+'m × '+f.depth+'m · UNVERIFIED');
+ const f=facilityCurrent(),clashes=f&&(pitches.some(p=>satOverlap(p,f))||facilities.some(o=>o.id!==f.id&&satOverlap(o,f)));
+ $('facilityStatus').textContent=!f?'Choose a facility to edit, or add a new one.':(placingFacility?'Click the map to place '+f.name+'. Esc to cancel.':(clashes?'⚠ Footprint overlap warning (movement is still allowed). ':'')+'Selected: '+f.name+' · '+f.front+'m × '+f.depth+'m · UNVERIFIED');
  $('facilityStatus').className='status'+(clashes?' warning':'');
 }
 $('addFacility').onclick=()=>{
@@ -1035,8 +1038,8 @@ $('addFacility').onclick=()=>{
  const c=map.getCenter();
  const facility={id:'facility-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),
   type,name:t.label,lat:c.lat,lng:c.lng,front:t.w,depth:t.d,angle:0,status:'DRAFT',eventYear:Number($('eventYear').value)||2027};
- facilities.push(facility);selectedFacility=facility.id;placingFacility=true;
- saveFacilities();displayFacilities();drawFacilities();
+ facilities.push(facility);selectedFacility=facility.id;selected=null;placingFacility=true;toggleMove(false);
+ saveFacilities();render();displayFacilities();
 };
 for(const [id,key] of [['facilityName','name'],['facilityWidth','front'],['facilityDepth','depth'],['facilityAngle','angle']]){
  $(id).addEventListener('change',()=>{
@@ -1049,7 +1052,7 @@ for(const [id,key] of [['facilityName','name'],['facilityWidth','front'],['facil
 }
 $('moveFacility').onclick=()=>{
  if(!facilityCurrent())return;
- placingFacility=!placingFacility;displayFacilities();drawFacilities();
+ selected=null;toggleMove(false);placingFacility=!placingFacility;render();displayFacilities();
 };
 $('centreFacility').onclick=()=>{
  const f=facilityCurrent();if(f)map.setView([f.lat,f.lng],19);
@@ -1064,7 +1067,7 @@ map.on('click',e=>{
  if(!placingFacility)return;
  const f=facilityCurrent();if(!f)return;
  f.lat=e.latlng.lat;f.lng=e.latlng.lng;
- placingFacility=false;saveFacilities();displayFacilities();drawFacilities();
+ placingFacility=false;saveFacilities();render();displayFacilities();
 });
 document.addEventListener('keydown',e=>{
  if(e.key==='Escape'&&placingFacility){placingFacility=false;displayFacilities();drawFacilities();}
