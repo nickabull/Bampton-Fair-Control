@@ -81,7 +81,7 @@
 #mapOverview{width:100%}
 @media(max-width:760px){.fair-map-nav{top:49px;right:7px;transform:scale(.88);transform-origin:top right}}
 </style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V14.1 · MAP NAV + CLEAN STAGE</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V14.2 · WIX STAGE ARTWORK</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -154,7 +154,8 @@
 <div class="field" id="facilityArtworkField" hidden>
 <label for="facilityArtwork">Artwork / Appearance</label>
 <select id="facilityArtwork">
-<option value="stage_illustrated">🎵 Music Stage — illustrated design</option>
+<option value="stage_illustrated">Music Stage — detailed artwork (Wix)</option>
+<option value="stage_vector">Illustrated vector stage (fallback)</option>
 <option value="basic_3d">Basic 3D outline</option>
 </select>
 <p class="small muted" id="facilityArtworkHelp">Illustrated stage uses the current 6m × 4m footprint and rotation. Estimated visual height only; check the real installation.</p>
@@ -539,7 +540,7 @@ function render(){
   $('pitchFullDetails').textContent=isFacility?'FAIR FACILITY · '+p.name+' · '+p.front+'m × '+p.depth+'m · browser draft only':
   'FULL DETAILS · '+p.code+' · '+p.trader+' · '+(p.testProduct||p.demoProducts||'Products not recorded')+' · '+(p.testStallType||'Type not recorded')+' · '+(p.status||'DRAFT');
   if(!isFacility){$('pitchArea').value=groupFor(p);paintFrontPresets(p);$('code').value=p.code;$('trader').value=p.trader;}
-  else { $('sharedFacilityName').value=p.name; if(p.type==='music_stage')$('facilityArtwork').value=p.appearance==='basic_3d'?'basic_3d':'stage_illustrated'; }
+  else { $('sharedFacilityName').value=p.name; if(p.type==='music_stage')$('facilityArtwork').value=['basic_3d','stage_vector'].includes(p.appearance)?p.appearance:'stage_illustrated'; }
   for(const id of ['front','depth','angle'])$(id).value=p[id];
   $('movePitch').textContent=placingPitch?'✕ Cancel move':isFacility?'↔ Move facility — click map':'↔ Move pitch — click map';
   $('zoom').textContent=isFacility?'Centre map on facility':'Centre map on pitch';
@@ -555,7 +556,7 @@ function render(){
 $('facilityArtwork').addEventListener('change',()=>{
  const f=selectedIsFacility()&&selectedFootprint();
  if(!f||f.type!=='music_stage')return;
- f.appearance=$('facilityArtwork').value==='basic_3d'?'basic_3d':'stage_illustrated';
+ f.appearance=['basic_3d','stage_vector'].includes($('facilityArtwork').value)?$('facilityArtwork').value:'stage_illustrated';
  saveFacilities();
  $('show3d').checked=true;
  if(walkPanorama)syncWalkMarkers();else draw3dBox();
@@ -796,6 +797,13 @@ $('stallArtwork').onclick=()=>{
  $('show3d').checked=true;
  if(walkPanorama)syncWalkMarkers();else draw3dBox();
 };
+const STAGE_ARTWORK_URL='https://static.wixstatic.com/media/8aa829_aa5e5c4e2c94450695981d855631f6a6~mv2.png';
+const stageArtworkImage=new Image();
+let stageArtworkReady=false;
+stageArtworkImage.crossOrigin='anonymous';
+stageArtworkImage.onload=()=>{stageArtworkReady=true;draw3dBox();};
+stageArtworkImage.onerror=()=>{stageArtworkReady=false;console.warn('Stage artwork unavailable; vector fallback will be shown');draw3dBox();};
+stageArtworkImage.src=STAGE_ARTWORK_URL;
 function artKind(p){
  const type=String(p.testStallType||p.stallType||p.type||'').toLowerCase();
  return /trailer|van|lorry|wagon/.test(type)?'trailer':/market|table|stall/.test(type)&&!type.includes('gazebo')?'market':'gazebo';
@@ -848,7 +856,7 @@ function draw3dBox(){
    const faces=[[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[4,5,6,7]];
    const selected=p.id===selectedFootprint()?.id;
    if(p.type==='music_stage'&&p.appearance!=='basic_3d'){
-     drawable.push({type:'stage',corners,depth:Math.hypot(east,north),p,selected,project});
+     drawable.push({type:p.appearance!=='stage_vector'&&stageArtworkReady?'stage_photo':'stage',corners,depth:Math.hypot(east,north),p,selected,project});
    }else if(artworkEnabled&&p.type!=='music_stage'){
      const roof=[...corners.map(v=>[v[0],v[1],groundHeight+2.5]),
        [(corners[0][0]+corners[3][0])/2,(corners[0][1]+corners[3][1])/2,groundHeight+3.2],
@@ -872,6 +880,31 @@ function draw3dBox(){
  const opacity=Number($('walkOpacity').value)/100;
  for(const item of drawable){
  
+  if(item.type==='stage_photo'){
+    const {corners,project}=item;
+    // Stage cutout from our Wix Media Manager. Approximate front-plane billboard:
+    // projected position, measured footprint and rotation follow the real 2D map.
+    // NOT a photogrammetric model: Google panorama camera depth/occlusion is unknown.
+    const lerp=(a,b,t)=>a+(b-a)*t;
+    const at=(u,v,h)=>{
+      const frontX=lerp(corners[0][0],corners[1][0],u),frontY=lerp(corners[0][1],corners[1][1],u);
+      const backX=lerp(corners[3][0],corners[2][0],u),backY=lerp(corners[3][1],corners[2][1],u);
+      return project([lerp(frontX,backX,v),lerp(frontY,backY,v),groundHeight+h]);
+    };
+    const topLeft=at(-.12,.22,4.0),topRight=at(1.18,.22,4.0),bottomLeft=at(-.12,.22,0),bottomRight=at(1.18,.22,0);
+    if(topLeft&&topRight&&bottomLeft&&bottomRight&&stageArtworkImage.naturalWidth){
+      // Preserve transparent background; let the canvas projection follow width and height.
+      const iw=stageArtworkImage.naturalWidth,ih=stageArtworkImage.naturalHeight;
+      c.save();
+      c.globalAlpha=1;
+      c.setTransform((topRight[0]-topLeft[0])/iw,(topRight[1]-topLeft[1])/iw,
+        (bottomLeft[0]-topLeft[0])/ih,(bottomLeft[1]-topLeft[1])/ih,
+        topLeft[0],topLeft[1]);
+      c.drawImage(stageArtworkImage,0,0,iw,ih);
+      c.restore();
+    }
+    continue;
+  }
   if(item.type==='stage'){
     // A perspective-projected vector interpretation of the earlier black-canopy
     // Doug Parish Memorial Stage artwork. The 6x4 footprint and angle come from
