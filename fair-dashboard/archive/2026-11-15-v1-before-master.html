@@ -1,0 +1,162 @@
+<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bampton Fair Dashboard</title>
+<style>
+:root{font-family:Arial,Helvetica,sans-serif;color:#fff;background:#101010;--orange:#ff991f;--gold:#ffb34f}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:#101010}
+body{padding:0}
+main{max-width:none;margin:0 auto}
+.hero{background:#101010;padding:30px clamp(18px,4vw,62px) 32px;border-bottom:5px solid var(--orange)}
+.eyebrow{font-size:13px;font-weight:900;letter-spacing:2.2px;color:#ffb45f;text-transform:uppercase}
+h1{font-size:clamp(32px,5.5vw,58px);line-height:1.06;margin:16px 0 15px;font-weight:900;letter-spacing:.5px;text-transform:uppercase}
+.intro{color:#f0efec;font-size:clamp(16px,1.9vw,19px);line-height:1.5;max-width:920px;margin:0}
+.head{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap}
+.status{font-size:13px;border:2px solid #ffae48;padding:10px 16px;border-radius:9px;color:#ffbd70;font-weight:800}
+.header-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.refresh{border:2px solid #ffae48;border-radius:9px;background:#ff991f;color:#111;padding:11px 15px;font-size:13px;font-weight:900;cursor:pointer;white-space:nowrap}
+.refresh:hover,.refresh:focus-visible{background:#ffc06c;outline:2px solid #fff;outline-offset:2px}
+.workspace{background:var(--orange);padding:25px clamp(18px,4vw,62px) 35px}
+.workspace h2.section-title{margin:0 0 18px;color:#111;font-size:24px;text-transform:uppercase;font-weight:900}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px}
+.card[draggable=true]{cursor:grab}.card.dragging{opacity:.48}.card.drag-over{outline:4px dashed #141414;outline-offset:3px}
+.card-tools{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:6px}
+.move-controls{display:flex;gap:7px}
+.move-controls button{background:#343434;color:#fff;border:1px solid #777;padding:6px 10px;border-radius:7px;font-size:14px;font-weight:800;cursor:pointer}
+.move-controls button:hover,.move-controls button:focus-visible{background:#555;outline:2px solid #fff}
+.drag-label{font-size:12px;color:#ffbd70;font-weight:800;letter-spacing:.5px}
+.order-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:18px}
+.order-bar .section-title{margin:0!important}
+.reset-order{background:#111;color:#fff;border:1px solid #111;border-radius:8px;padding:10px 14px;font-size:13px;font-weight:800;cursor:pointer}
+.reset-order:hover,.reset-order:focus-visible{outline:2px solid #111;outline-offset:2px}
+.card{min-height:245px;display:flex;flex-direction:column;justify-content:space-between;padding:25px;border:2px solid #474747;border-radius:14px;background:#1e1e1e;box-shadow:0 5px 0 #0002}
+.card h2{font-size:clamp(23px,2.5vw,29px);line-height:1.2;margin:8px 0 12px;color:#fff;font-weight:900;text-transform:uppercase}
+.card p{font-size:16px;line-height:1.55;color:#e8e8e8;margin:0 0 20px}
+.icon{font-size:37px}
+.action{display:block;text-align:center;width:100%;border:2px solid #ffaf4b;border-radius:10px;padding:17px 14px;background:var(--orange);color:#121212;font-size:17px;font-weight:900;cursor:pointer;letter-spacing:.2px}
+.action:hover:not(:disabled),.action:focus-visible{background:#ffc06c;outline:3px solid #fff;outline-offset:2px}
+.card.locked{background:#282828;border-color:#696969}
+.card.locked .action{background:#686868;color:#efefef;border-color:#777;cursor:not-allowed}
+.card.pending .action{background:#555;color:#f0f0f0;border-color:#777;cursor:not-allowed}
+.note{font-size:13px;color:#252525;margin:20px 0 0;font-weight:700;line-height:1.5}
+@media(max-width:700px){.hero{padding:20px 16px 22px}.workspace{padding:18px 14px 27px}.grid{grid-template-columns:1fr}.card{min-height:210px;padding:19px}.status{font-size:12px}.card h2{font-size:23px}}
+</style></head><body><main>
+<section class="hero">
+<div class="head"><div class="eyebrow">📻 Bampton Town Council · Fair management</div><div class="header-actions"><div class="status" id="status">Checking access…</div><button id="refreshDashboard" class="refresh" type="button" title="Reload only this dashboard without leaving the Wix page">↻ REFRESH DASHBOARD</button></div></div>
+<h1>Fair Dashboard</h1>
+<p class="intro">One place for everything you need to plan and run Bampton Charter Fair. Select a tool to get started; unavailable tools are greyed out.</p>
+</section>
+<section class="workspace">
+<div class="order-bar"><h2 class="section-title">Choose your tool</h2><button id="resetOrder" class="reset-order" type="button">↺ RESET ORDER</button></div>
+<p style="font-size:14px;color:#171717;font-weight:700;margin:-6px 0 17px">Drag a card to reorder, or use the ↑ ↓ buttons. Your order is remembered on this browser.</p>
+<div class="grid" id="cards" aria-live="polite"></div><p id="orderStatus" role="status" style="font-size:13px;color:#171717"></p>
+<p class="note">Access is controlled by Wix membership permissions. Each destination also needs its own access protection.</p>
+</section>
+</main>
+<script>
+const TOOLS=[
+ {key:'control',icon:'📻',title:'Control Centre',description:'Fair Day operations: choose the radio, record incoming messages, log incidents, track actions and review the master audit trail.',button:'OPEN CONTROL CENTRE'},
+ {key:'designer',icon:'🗺️',title:'Stall Designer',description:'Plan the street layout, place and adjust pitches, view stall locations on the map and prepare the Fair site.',button:'OPEN STALL DESIGNER'},
+ {key:'jobs',icon:'📋',title:'Jobs Matrix',description:'See what needs doing before Fair Day, who is responsible, deadlines, progress and outstanding tasks.',button:'OPEN JOBS MATRIX'},
+ {key:'applications',icon:'📝',title:'Stall Application Form',description:'Open the application form used to submit a request for a stall at the Fair.',button:'OPEN APPLICATION FORM'},
+ {key:'approvals',icon:'✅',title:'Applications & Approvals',description:'Review submitted stallholder records, correct details, approve applications and prepare them for allocation.',button:'REVIEW APPLICATIONS'}
+];
+const root=document.getElementById('cards');
+document.getElementById('refreshDashboard').addEventListener('click',()=>window.location.reload());
+let access={permitted:{}},links={},draggedKey=null;
+const DEFAULTS={
+ SUPER_ADMIN:['approvals','control','designer','jobs','applications'],
+ FAIR_ORGANISER:['approvals','designer','jobs','control','applications'],
+ CONTROL_ROOM:['control','jobs','designer','applications','approvals'],
+ MAPPING_EDITOR:['designer','jobs','applications','approvals','control'],
+ VIEWER:['jobs','control','designer','applications','approvals']
+};
+const originalOrder=TOOLS.map(t=>t.key);
+function storageKey(){
+ // Temporary role-specific preference on this browser, not a cross-device member setting.
+ return 'bampton_fair_dashboard_order_v1_'+(access.role||'ANONYMOUS');
+}
+function orderedKeys(){
+ let saved;
+ try{saved=JSON.parse(localStorage.getItem(storageKey())||'null');}catch(_e){}
+ const base=Array.isArray(saved)?saved:(DEFAULTS[access.role]||originalOrder);
+ return [...new Set([...base,...originalOrder])].filter(k=>originalOrder.includes(k));
+}
+function saveOrder(keys){
+ try{localStorage.setItem(storageKey(),JSON.stringify(keys));}
+ catch(_e){document.getElementById('orderStatus').textContent='This browser cannot remember your custom order.';}
+}
+function moveCard(key,targetKey){
+ const keys=orderedKeys(),from=keys.indexOf(key),to=keys.indexOf(targetKey);
+ if(from<0||to<0||from===to)return;
+ keys.splice(from,1);keys.splice(to,0,key);
+ saveOrder(keys);paint();
+}
+function shiftCard(key,delta){
+ const keys=orderedKeys(),index=keys.indexOf(key),to=index+delta;
+ if(index<0||to<0||to>=keys.length)return;
+ [keys[index],keys[to]]=[keys[to],keys[index]];
+ saveOrder(keys);paint();
+}
+document.getElementById('resetOrder').addEventListener('click',()=>{
+ try{localStorage.removeItem(storageKey());}catch(_e){}
+ paint();
+});
+function paint(){
+ root.replaceChildren();
+ const order=orderedKeys();
+ for(const key of order){
+  const tool=TOOLS.find(t=>t.key===key);
+  const permitted=access.permitted?.[tool.key]===true;
+  const configured=typeof links[tool.key]==='string'&&/^https:\/\//.test(links[tool.key]);
+  const card=document.createElement('article');
+  card.className='card '+(!permitted?'locked':!configured?'pending':'');
+  card.dataset.key=key;card.draggable=true;
+  card.addEventListener('dragstart',e=>{
+   if(e.target.closest('button')){e.preventDefault();return;}
+   draggedKey=key;card.classList.add('dragging');
+   e.dataTransfer.effectAllowed='move';e.dataTransfer.setData('text/plain',key);
+  });
+  card.addEventListener('dragover',e=>{
+   e.preventDefault();e.dataTransfer.dropEffect='move';card.classList.add('drag-over');
+  });
+  card.addEventListener('dragleave',()=>card.classList.remove('drag-over'));
+  card.addEventListener('drop',e=>{
+   e.preventDefault();card.classList.remove('drag-over');
+   const moved=draggedKey||e.dataTransfer.getData('text/plain');
+   if(originalOrder.includes(moved))moveCard(moved,key);
+  });
+  card.addEventListener('dragend',()=>{draggedKey=null;document.querySelectorAll('.card').forEach(c=>c.classList.remove('drag-over','dragging'));});
+  const heading=document.createElement('div');
+  const tools=document.createElement('div');tools.className='card-tools';
+  const label=document.createElement('span');label.className='drag-label';label.textContent='⠿ DRAG TO REORDER';
+  const arrows=document.createElement('div');arrows.className='move-controls';
+  for(const [symbol,delta,word] of [['↑',-1,'up'],['↓',1,'down']]){
+   const arrow=document.createElement('button');arrow.type='button';
+   arrow.textContent=symbol;arrow.title='Move '+tool.title+' '+word;
+   arrow.setAttribute('aria-label',arrow.title);
+   arrow.addEventListener('click',()=>shiftCard(key,delta));
+   arrows.append(arrow);
+  }
+  tools.append(label,arrows);
+  const icon=document.createElement('div');icon.className='icon';icon.textContent=tool.icon;
+  const title=document.createElement('h2');title.textContent=tool.title;
+  const desc=document.createElement('p');desc.textContent=tool.description;
+  heading.append(tools,icon,title,desc);
+  const button=document.createElement('button');
+  button.className='action';button.type='button';button.draggable=false;
+  button.textContent=!permitted?'🔒 ACCESS RESTRICTED':!configured?'AWAITING LINK':tool.button;
+  button.disabled=!permitted||!configured;
+  button.addEventListener('click',()=>window.parent.postMessage({type:'FAIR_DASHBOARD_V1_NAVIGATE',key:tool.key},'*'));
+  card.append(heading,button);root.append(card);
+ }
+}
+window.addEventListener('message',event=>{
+ if(event.source!==window.parent)return;
+ const msg=event.data;if(msg?.type!=='FAIR_DASHBOARD_V1_DATA')return;
+ access=msg.access||{permitted:{}};links=msg.links||{};
+ document.getElementById('status').textContent=access.role?('Access: '+access.role.replaceAll('_',' ')):'Sign in / access not granted';
+ paint();
+});
+paint();
+window.parent.postMessage({type:'FAIR_DASHBOARD_V1_HELLO'},'*');
+</script></body></html>
