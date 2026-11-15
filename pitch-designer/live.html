@@ -83,7 +83,7 @@
 #mapOverview{width:100%}
 @media(max-width:760px){.fair-map-nav{top:49px;right:7px;transform:scale(.88);transform-origin:top right}}
 </style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V14.8 · SIMPLE BLACK STAGE BOX</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V14.9 · UNIFIED 3D BOX CONTROL</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -153,14 +153,6 @@
 <div class="streetview-footer"><span id="streetviewPosition">Select a pitch to inspect its surroundings.</span><div>Nearby imagery only · Check doorways, clearances and obstructions on site before approving a pitch.</div></div>
 </div></section></div>
 <aside class="right"><div class="section-title" id="selectedFootprintHeading">SELECTED PITCH / FACILITY</div><div id="empty" class="muted">Choose a pitch or facility.</div><div id="editor" hidden><div class="areaSummary" id="pitchFullDetails">Full footprint details</div><div class="field" id="sharedFacilityNameField" hidden><label for="sharedFacilityName">Facility name</label><input id="sharedFacilityName" maxlength="100"></div>
-<div class="field" id="facilityArtworkField" hidden>
-<label for="facilityArtwork">Artwork / Appearance</label>
-<select id="facilityArtwork">
-<option value="basic_3d">Location marker only — stable</option>
-<option value="stage_experimental">Black 3D box — same as stalls</option>
-</select>
-<p class="small muted" id="facilityArtworkHelp">Black box uses exactly the same 3D footprint geometry as the orange stalls, with no stage details. Indicative Street View placement; not surveyed.</p>
-</div>
 <div class="field" id="pitchAreaField"><label for="pitchArea">Allocation area</label><select id="pitchArea"></select></div>
 <div class="field" id="pitchCodeField"><label>Pitch code</label><input id="code" maxlength="30"></div>
 <div class="field" id="pitchPresetField"><label>Footprint frontage preset</label><div class="preset-row" id="frontPresets"></div><p class="small muted">Or enter a custom size below (e.g. 4m). Width and depth are measured in metres, never inferred from artwork.</p></div><div class="field" id="pitchTraderField"><label>Trader label (demo only)</label><input id="trader" maxlength="80"></div><div class="dims"><div class="field"><label>Frontage (metres)</label><input id="front" type="number" min=".5" max="30" step=".5"></div><div class="field"><label>Depth (metres)</label><input id="depth" type="number" min=".5" max="20" step=".5"></div></div>
@@ -536,12 +528,11 @@ function render(){
  $('selectedFootprintHeading').textContent=isFacility?'SELECTED FAIR FACILITY':'SELECTED PITCH';
  for(const id of ['pitchAreaField','pitchPresetField','pitchTraderField','pitchCodeField'])$(id).hidden=isFacility;
  $('sharedFacilityNameField').hidden=!isFacility;
- $('facilityArtworkField').hidden=!(isFacility&&p.type==='music_stage');
  if(p){
   $('pitchFullDetails').textContent=isFacility?'FAIR FACILITY · '+p.name+' · '+p.front+'m × '+p.depth+'m · browser draft only':
   'FULL DETAILS · '+p.code+' · '+p.trader+' · '+(p.testProduct||p.demoProducts||'Products not recorded')+' · '+(p.testStallType||'Type not recorded')+' · '+(p.status||'DRAFT');
   if(!isFacility){$('pitchArea').value=groupFor(p);paintFrontPresets(p);$('code').value=p.code;$('trader').value=p.trader;}
-  else { $('sharedFacilityName').value=p.name; if(p.type==='music_stage')$('facilityArtwork').value=p.appearance==='stage_experimental'?'stage_experimental':'basic_3d'; }
+  else $('sharedFacilityName').value=p.name;
   for(const id of ['front','depth','angle'])$(id).value=p[id];
   $('movePitch').textContent=placingPitch?'✕ Cancel move':isFacility?'↔ Move facility — click map':'↔ Move pitch — click map';
   $('zoom').textContent=isFacility?'Centre map on facility':'Centre map on pitch';
@@ -554,15 +545,6 @@ function render(){
  }
  draw();
 }
-$('facilityArtwork').addEventListener('change',()=>{
- const f=selectedIsFacility()&&selectedFootprint();
- if(!f||f.type!=='music_stage')return;
- f.appearance=$('facilityArtwork').value==='stage_experimental'?'stage_experimental':'basic_3d';
- saveFacilities();
- $('show3d').checked=f.appearance==='stage_experimental'||$('show3d').checked;
- if(walkPanorama)syncWalkMarkers();else draw3dBox();
- render();
-});
 $('sharedFacilityName').addEventListener('change',()=>{const f=selectedIsFacility()&&selectedFootprint();if(!f)return;const name=$('sharedFacilityName').value.trim();if(!name||name.length>100){render();return;}f.name=name;saveFacilities();render();displayFacilities();});
 for(const [id,key] of [['code','code'],['trader','trader'],['front','front'],['depth','depth'],['angle','angle']])$(id).addEventListener('change',()=>{const p=selectedFootprint();if(!p||(selectedIsFacility()&&(id==='code'||id==='trader')))return;let val=$(id).value;if(['front','depth','angle'].includes(key)){val=Number(val);if(!Number.isFinite(val))return;if(key==='front')val=Math.max(.5,Math.min(30,val));if(key==='depth')val=Math.max(.5,Math.min(20,val));if(key==='angle')val=((val%360)+360)%360;}p[key]=val;saveFootprint();render();if(!$('streetviewPane').hidden&&streetViewKey)updateStreetView()});
 for(const b of document.querySelectorAll('[data-rotate]'))b.onclick=()=>{const p=selectedFootprint();if(!p)return;p.angle=(p.angle+Number(b.dataset.rotate)+360)%360;saveFootprint();render();if(!$('streetviewPane').hidden&&streetViewKey)updateStreetView()};
@@ -835,11 +817,11 @@ function draw3dBox(){
    return [width/2+focal*right/depth,height/2-focal*vertical/depth,depth];
  };
  const all=$('walkScope').value==='all';
- // Only explicitly opted-in facilities enter the existing stall renderer.
- // This is an experimental overlay with no guarantee of survey-grade alignment.
- const experimentalStages=facilities.filter(f=>f.type==='music_stage'&&f.appearance==='stage_experimental');
- const candidates=all?[...pitches,...experimentalStages]:selectedIsFacility()?
-   experimentalStages.filter(f=>f.id===selectedFacility):[selectedPitch()].filter(Boolean);
+ // Normal 3D control handles ALL measured footprints. Music Stage uses the
+ // same five-face box as the orange stalls, with black fill; no extra mode.
+ const stageFootprints=facilities.filter(f=>f.type==='music_stage');
+ const candidates=all?[...pitches,...stageFootprints]:selectedIsFacility()?
+   stageFootprints.filter(f=>f.id===selectedFacility):[selectedPitch()].filter(Boolean);
  const drawable=[];
  for(const p of candidates){
    if(!p||!Number.isFinite(p.lat)||!Number.isFinite(p.lng))continue;
@@ -853,7 +835,7 @@ function draw3dBox(){
    const vertices=[...corners.map(v=>[v[0],v[1],groundHeight]),...corners.map(v=>[v[0],v[1],groundHeight+2.5])].map(project);
    const faces=[[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[4,5,6,7]];
    const selected=p.id===selectedFootprint()?.id;
-   const isStage=p.type==='music_stage'&&p.appearance==='stage_experimental';
+   const isStage=p.type==='music_stage';
    if(artworkEnabled&&!isStage){
      const roof=[...corners.map(v=>[v[0],v[1],groundHeight+2.5]),
        [(corners[0][0]+corners[3][0])/2,(corners[0][1]+corners[3][1])/2,groundHeight+3.2],
@@ -980,7 +962,7 @@ function syncWalkMarkers(){
     const f=facilities[idx];
     if(!Number.isFinite(f.lat)||!Number.isFinite(f.lng))continue;
     const active=f.id===selectedFacility;
-    const drawn=$('show3d').checked&&f.type==='music_stage'&&f.appearance==='stage_experimental'&&
+    const drawn=$('show3d').checked&&f.type==='music_stage'&&
       ($('walkScope').value==='all'||active);
     if(drawn)continue;
     const marker=new google.maps.Marker({
@@ -995,9 +977,9 @@ function syncWalkMarkers(){
     walkMarkers.push(marker);
   }
   walkStatus(selectedIsFacility()?
-    (facilityCurrent()?.appearance==='stage_experimental'?
-      'EXPERIMENTAL STAGE · stall-style projection; may still be offset in Street View. Change artwork to Location marker only to disable safely.':
-      'FAIR FACILITY · location marker only. Use measured 2D map for accurate placement.'):
+    ($('show3d').checked?
+     'MUSIC STAGE · black 3D footprint box; same perspective approach as stalls. Indicative location only, confirm on site.':
+     'FAIR FACILITY · location marker only. Switch on normal 3D boxes to show its black footprint.'):
     $('show3d').checked?($('walkScope').value==='all'?'FAIR DAY WALKTHROUGH · '+pitches.length+' mapped stalls available (nearby ones drawn). 2.5m estimated height; indicative positions only.':'SELECTED STALL · 2.5m estimated height; indicative position only.'):'Showing '+walkMarkers.length+' geographically located pitch markers. Enable 3D boxes to see footprints.');draw3dBox();
 }
 function updateWalkthrough(){
