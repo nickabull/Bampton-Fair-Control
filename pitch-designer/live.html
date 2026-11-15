@@ -1148,7 +1148,7 @@ let facilities=[],selectedFacility=null,placingFacility=false;
 const FACILITY_COUNTER_KEY='bamptonFair.facilities.nextCode.v1';
 let facilityCounter=1;
 try{const stored=Number(localStorage.getItem(FACILITY_COUNTER_KEY));if(Number.isSafeInteger(stored)&&stored>0)facilityCounter=stored;}catch(_e){}
-function facilityCodeNumber(code){const match=/^F-(\\d{3,})$/.exec(String(code||''));return match?Number(match[1]):null;}
+function facilityCodeNumber(code){const match=/^F-(\d{3,})$/.exec(String(code||''));return match?Number(match[1]):null;}
 function facilityCode(n){return 'F-'+String(n).padStart(3,'0');}
 function allocateFacilityCode(){
  const used=new Set(facilities.map(f=>f.code));
