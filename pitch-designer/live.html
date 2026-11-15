@@ -83,7 +83,7 @@
 #mapOverview{width:100%}
 @media(max-width:760px){.fair-map-nav{top:49px;right:7px;transform:scale(.88);transform-origin:top right}}
 </style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V15.0 · RELIABLE MAP STARTUP</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V15.1 · FAIR-CENTRED START</div><a id="fairDashboardLink" href="https://www.bamptoncharterfair.org.uk/fair-dashboard" target="_top" rel="noopener" title="Return to Fair Dashboard" style="display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:9px 12px;border-radius:8px;background:#292e32;color:white;border:1px solid #eee;text-decoration:none;font-weight:800">⌂ Fair Dashboard</a><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -284,8 +284,21 @@ function coverPrivateOsMap(resetView=false){
   const imageCoversViewport=osPrivateBounds.contains(visible);
   if(resetView||(!osUserNavigated&&!imageCoversViewport)){
     osProgrammaticZoom=true;
-    try{map.setView(osPrivateBounds.getCenter(),coverZoom,{animate:false});}
-    finally{osProgrammaticZoom=false;}
+    try{
+      // Centre on the music stage/test stalls rather than the map extract midpoint.
+      // Do not permit a viewport outside the licensed SVG; fall back to full-map centre.
+      const stage=typeof facilities!=='undefined'?facilities.find(f=>f.type==='music_stage'):null;
+      const trial=typeof pitches!=='undefined'?pitches.find(p=>p.code==='TEST-2027-001')||pitches.find(p=>p.code==='S-001'):null;
+      const anchor=stage||trial;
+      let framed=false;
+      if(anchor&&osPrivateBounds.contains([anchor.lat,anchor.lng])){
+        for(let zoom=Math.max(19,coverZoom);zoom<=map.getMaxZoom();zoom++){
+          map.setView([anchor.lat,anchor.lng],zoom,{animate:false});
+          if(osPrivateBounds.contains(map.getBounds())){framed=true;break;}
+        }
+      }
+      if(!framed)map.setView(osPrivateBounds.getCenter(),coverZoom,{animate:false});
+    }finally{osProgrammaticZoom=false;}
   }
   // When the map aspect ratio changes in Wix, recompute once after resize.
   // Never automatically pan to a stall; use Stage/Centre controls for that.
@@ -350,8 +363,8 @@ async function loadPrivateOsFile(file){
     if(prePrivateMinZoom===null)prePrivateMinZoom=map.getMinZoom();
     if(oldLayer)map.removeLayer(oldLayer);
     if(oldUrl)URL.revokeObjectURL(oldUrl);
-    // Wait for Wix's actual map-panel dimensions and the private SVG overlay.
-    // This first-load framing never changes the stored footprint coordinates.
+    // Wait until Wix finishes sizing the map, then focus the Fair working area.
+    // This never changes stored pitch/facility coordinates.
     osPrivateOverlay.once('load',schedulePrivateOsStartup);
     schedulePrivateOsStartup();
     osStatus('Private OS MasterMap ONLY — OpenStreetMap tiles hidden. This council map stays on this device; press Show OpenStreetMap instead to swap maps.');
