@@ -74,7 +74,7 @@
 .pitch-footprint-label{display:block;background:#1f2529eb;border:1px solid #f58220;border-radius:5px;color:#fff;padding:2px 4px;font:bold 10px Arial;text-align:center;white-space:nowrap;box-shadow:0 2px 7px #0005}
 .pitchitem .areaTag{display:block;color:#fbc48c;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.35px;margin-top:3px}
 #movePitch.armed{background:#f58220;color:#111!important} #streetviewJs{position:absolute;inset:0;width:100%;height:100%;min-height:0} #walk3dCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:700} .pitch-hover{background:#202529;color:#fff;border:1px solid #f58220;border-radius:9px;padding:9px 12px;box-shadow:0 5px 20px #0008;line-height:1.5} .pitch-hover strong{color:#ffa64d;font-size:13px}.pitch-drag-handle{width:20px;height:20px;border:1px solid #50585c;border-radius:4px;background:#f5f2e9;color:#111;box-shadow:0 1px 4px #0007;display:grid;place-items:center;cursor:grab;touch-action:none;position:relative}.pitch-drag-handle::before,.pitch-drag-handle::after{content:'';display:block;position:absolute;background:#111;border-radius:2px}.pitch-drag-handle::before{width:12px;height:2.5px}.pitch-drag-handle::after{width:2.5px;height:12px}.pitch-map-label{color:#111;text-align:center;line-height:1.1;font:bold 11px Arial,sans-serif;text-shadow:0 1px 2px #fff,0 -1px 2px #fff;white-space:nowrap;pointer-events:none;transform:translate(-50%,-50%);width:max-content;max-width:110px;overflow:hidden;text-overflow:ellipsis}.leaflet-tooltip.pitch-hover-wrap,.leaflet-tooltip.pitch-hover-wrap .pitch-hover{color:#111;background:#fffaf0}.leaflet-tooltip.pitch-hover-wrap .pitch-hover strong{color:#111}.leaflet-tooltip.pitch-hover-wrap{border-color:#333}.leaflet-tooltip.pitch-hover-wrap{font:12px/1.3 Arial,sans-serif!important;max-width:190px!important;white-space:normal!important;padding:5px 7px!important;box-shadow:0 2px 6px #0004!important}.leaflet-tooltip.pitch-hover-wrap .pitch-hover{font:12px/1.3 Arial,sans-serif!important;max-width:175px!important;padding:0!important;border:0!important;box-shadow:none!important}.leaflet-tooltip.pitch-hover-wrap .pitch-hover strong{font-size:12px!important;color:#111!important}.pitch-drag-handle:active{cursor:grabbing}.leaflet-tooltip.pitch-hover-wrap{pointer-events:none}.pitch-summary{min-width:195px;color:#263039;line-height:1.6;font-size:13px}.pitch-summary strong{color:#bc6015}.pitch-summary button{background:#f58220;color:#101010;border:0;border-radius:6px;padding:9px 12px;cursor:pointer;font-weight:bold;width:100%;margin-top:8px}.leaflet-popup-content-wrapper{border:2px solid #f58220}</style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V13.7 · MATCH PITCH CONTROLS</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V13.8 · SHARED FOOTPRINT EDITOR</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -100,7 +100,7 @@
 <button id="addFacility" type="button" style="width:100%">+ Add selected facility</button>
 <div class="status" id="facilityStatus">No facility selected. Select a type, then add it.</div>
 <div id="facilityList" aria-label="Placed facilities"></div>
-<div id="facilityEditor" hidden>
+<div id="facilityEditor" hidden style="display:none">
 <div class="field"><label for="facilityName">Facility name</label><input id="facilityName" maxlength="100"></div>
 <div class="dims"><div class="field"><label for="facilityWidth">Width (m)</label><input id="facilityWidth" type="number" min=".5" max="200" step=".5"></div><div class="field"><label for="facilityDepth">Depth (m)</label><input id="facilityDepth" type="number" min=".5" max="200" step=".5"></div></div>
 <div class="field"><label for="facilityAngle">Rotation (degrees)</label><input id="facilityAngle" type="number" min="-360" max="360" step="5"></div>
@@ -135,10 +135,10 @@
 <div class="walk-controls" id="walkControls"><button id="walkEnable" type="button">◉ Fair Day overlay (beta)</button><label for="walkOpacity">Visibility</label><input id="walkOpacity" type="range" min="10" max="100" step="5" value="55"><span id="walkOpacityValue" style="font-size:11px">55%</span><input id="walkJsKey" class="secondary-key" type="password" autocomplete="off" spellcheck="false" aria-label="Separate Maps JavaScript API key" placeholder="JavaScript API key"><button id="walkLoad" type="button">Start overlay</button><label class="small"><input id="show3d" type="checkbox"> 3D boxes</label><button id="stallArtwork" type="button" aria-pressed="false" title="Toggle illustrated market stalls">🎪 Stall Artwork</button><label for="walkScope">Show</label><select id="walkScope" aria-label="Choose 3D stalls to show"><option value="selected">Selected stall</option><option value="all">All stalls</option></select><div class="walk-align" aria-label="Adjust 3D demo placement"><strong>Align 3D preview</strong><button type="button" data-align="left" title="Nudge box left">←</button><button type="button" data-align="up" title="Nudge box away">↑</button><button type="button" data-align="down" title="Nudge box closer">↓</button><button type="button" data-align="right" title="Nudge box right">→</button><button type="button" data-align="reset" title="Reset 3D offset">Reset</button><small id="alignStatus">Demo-only offset: 0m E / 0m N</small><label for="groundLevel">Ground height</label><input id="groundLevel" type="range" min="-2" max="2" step="0.1" value="0"><small id="groundLevelValue">0.0m</small></div><span id="walkStatus" class="walk-status">Preview mode: numbered pitch markers, not photorealistic stalls. Requires a separately authorised Maps JavaScript API key.</span></div>
 <div class="streetview-footer"><span id="streetviewPosition">Select a pitch to inspect its surroundings.</span><div>Nearby imagery only · Check doorways, clearances and obstructions on site before approving a pitch.</div></div>
 </div></section></div>
-<aside class="right"><div class="section-title">Selected pitch</div><div id="empty" class="muted">Choose a pitch or create one.</div><div id="editor" hidden><div class="areaSummary" id="pitchFullDetails">Full pitch details</div>
-<div class="field"><label for="pitchArea">Allocation area</label><select id="pitchArea"></select></div>
-<div class="field"><label>Pitch code</label><input id="code" maxlength="30"></div>
-<div class="field"><label>Footprint frontage preset</label><div class="preset-row" id="frontPresets"></div><p class="small muted">Or enter a custom size below (e.g. 4m). Width and depth are measured in metres, never inferred from artwork.</p></div><div class="field"><label>Trader label (demo only)</label><input id="trader" maxlength="80"></div><div class="dims"><div class="field"><label>Frontage (metres)</label><input id="front" type="number" min=".5" max="30" step=".5"></div><div class="field"><label>Depth (metres)</label><input id="depth" type="number" min=".5" max="20" step=".5"></div></div>
+<aside class="right"><div class="section-title" id="selectedFootprintHeading">SELECTED PITCH / FACILITY</div><div id="empty" class="muted">Choose a pitch or facility.</div><div id="editor" hidden><div class="areaSummary" id="pitchFullDetails">Full pitch details</div>
+<div class="field" id="pitchAreaField"><label for="pitchArea">Allocation area</label><select id="pitchArea"></select></div>
+<div class="field" id="pitchCodeField"><label>Pitch code</label><input id="code" maxlength="30"></div>
+<div class="field" id="pitchPresetField"><label>Footprint frontage preset</label><div class="preset-row" id="frontPresets"></div><p class="small muted">Or enter a custom size below (e.g. 4m). Width and depth are measured in metres, never inferred from artwork.</p></div><div class="field" id="pitchTraderField"><label>Trader label (demo only)</label><input id="trader" maxlength="80"></div><div class="dims"><div class="field"><label>Frontage (metres)</label><input id="front" type="number" min=".5" max="30" step=".5"></div><div class="field"><label>Depth (metres)</label><input id="depth" type="number" min=".5" max="20" step=".5"></div></div>
 <div class="field"><label>Rotation (degrees clockwise)</label><input id="angle" type="number" min="-360" max="360" step="5"></div><div class="rotation"><button class="secondary" data-rotate="-15">-15°</button><button class="secondary" data-rotate="-5">-5°</button><button class="secondary" data-rotate="5">+5°</button><button class="secondary" data-rotate="15">+15°</button></div>
 <div class="status" id="warnings">Select a pitch to assess overlaps.</div><div class="field"><button id="street" style="width:100%">◉ Open Street View Dock</button></div><div class="field"><button class="secondary" id="movePitch" style="width:100%">↔ Move pitch — click map</button><p class="small muted" id="moveInstructions">Click Move then click the map to place the centre. Esc cancels.</p></div><div class="field"><button class="secondary" id="zoom" style="width:100%">Centre map on pitch</button></div><div class="field"><button class="ghost" id="remove" style="width:100%">Remove demo pitch</button></div>
 <div class="footer"><div class="small muted" id="coords"></div><p class="small muted">Street View stays docked at the bottom of the map. Click another pitch to inspect its nearest panorama; verify hazards in person.</p></div>
@@ -410,6 +410,10 @@ id:p.id,wixId:p.id,wixUpdatedAt:p.updatedAt,code:p.pitchCode,trader:'Unassigned'
 lat,lng,front:p.frontageM,depth:p.depthM,angle:p.rotationDeg,zone:p.zone,street:p.street,status:p.status,locationVerified:p.locationVerified,restrictionNotes:p.restrictionNotes,eventYear:p.eventYear
 };}
 function selectedPitch(){return pitches.find(x=>x.id===selected);}
+function selectedFootprint(){return (selectedFacility&&facilityCurrent())||selectedPitch();}
+function selectedIsFacility(){return !!(selectedFacility&&facilityCurrent());}
+function saveFootprint(){if(selectedIsFacility())saveFacilities();else save();}
+function selectedTitle(p){return p.code||p.name||'FOOTPRINT';}
 function xy(lat,lng,lat0){return [(lng-base[1])*111320*Math.cos(lat0*Math.PI/180),(lat-base[0])*111320]}
 function polygon(p){const ca=Math.cos(p.angle*Math.PI/180),sa=Math.sin(p.angle*Math.PI/180);const lat0=p.lat;const d=[];for(const [x,y] of [[-p.front/2,-p.depth/2],[p.front/2,-p.depth/2],[p.front/2,p.depth/2],[-p.front/2,p.depth/2]]){const east=x*ca+y*sa,north=-x*sa+y*ca;d.push([p.lat+north/111320,p.lng+east/(111320*Math.cos(lat0*Math.PI/180))]);}return d;}
 function satOverlap(a,b){const lat0=(a.lat+b.lat)/2;const A=polygon(a).map(q=>xy(q[0],q[1],lat0)),B=polygon(b).map(q=>xy(q[0],q[1],lat0));for(const poly of [A,B])for(let i=0;i<poly.length;i++){const u=poly[i],v=poly[(i+1)%poly.length],nx=-(v[1]-u[1]),ny=v[0]-u[0];const x=A.map(p=>p[0]*nx+p[1]*ny),y=B.map(p=>p[0]*nx+p[1]*ny);if(Math.max(...x)<=Math.min(...y)+.001||Math.max(...y)<=Math.min(...x)+.001)return false;}return true;}
@@ -462,9 +466,39 @@ if(active){
 }
 layers[p.id]={poly,marker,label};}drawFacilities();const selectedItem=selectedPitch();const box=$('warnings');if(selectedItem){const matches=pitches.filter(p=>p.id!==selectedItem.id&&satOverlap(p,selectedItem));box.textContent=matches.length?'⚠ PITCH OVERLAP: '+matches.map(x=>x.code).join(', '):'✓ No overlaps with the other draft pitches. Other hazards are NOT checked.';box.className='status '+(matches.length?'warning':'ok');$('coords').textContent=selectedItem.lat.toFixed(6)+', '+selectedItem.lng.toFixed(6)+' (WGS84)';}}
 function choose(id){selected=id;selectedFacility=null;placingFacility=false;toggleMove(false);render();displayFacilities();if(!$('streetviewPane').hidden&&(streetViewKey||walkPanorama))updateStreetView();}
-function render(){const p=selectedPitch();paintAreaSummary();refreshTestDropdown();$('pitchlist').replaceChildren();for(const q of pitches.filter(q=>groupFor(q)===areaFilter)){const b=document.createElement('button');b.className='pitchitem'+(q.id===selected?' selected':'');const title=document.createElement('strong');title.textContent=q.code;const sub=document.createElement('span');sub.textContent=q.trader+' · '+q.front+'m × '+q.depth+'m';const areaTag=document.createElement('span');areaTag.className='areaTag';areaTag.textContent=groupMeta(groupFor(q)).label;b.append(title,sub,areaTag);if(q.testTraderId){const t=document.createElement('span');t.className='areaTag';t.textContent='FICTIONAL '+q.testTraderId;b.append(t);}b.onclick=()=>choose(q.id);$('pitchlist').append(b);}$('editor').hidden=!p;$('empty').hidden=!!p;if(p){$('pitchFullDetails').textContent='FULL DETAILS · '+p.code+' · '+p.trader+' · '+(p.testProduct||p.demoProducts||'Products not recorded')+' · '+(p.testStallType||'Type not recorded')+' · '+(p.status||'DRAFT');$('pitchArea').value=groupFor(p);paintFrontPresets(p);for(const [key,id] of [['code','code'],['trader','trader'],['front','front'],['depth','depth'],['angle','angle']])$(id).value=p[key]}draw();}
-for(const [id,key] of [['code','code'],['trader','trader'],['front','front'],['depth','depth'],['angle','angle']])$(id).addEventListener('change',()=>{const p=selectedPitch();if(!p)return;let val=$(id).value;if(['front','depth','angle'].includes(key)){val=Number(val);if(!Number.isFinite(val))return;if(key==='front')val=Math.max(.5,Math.min(30,val));if(key==='depth')val=Math.max(.5,Math.min(20,val));if(key==='angle')val=((val%360)+360)%360;}p[key]=val;save();render();if(!$('streetviewPane').hidden&&streetViewKey)updateStreetView()});
-for(const b of document.querySelectorAll('[data-rotate]'))b.onclick=()=>{const p=selectedPitch();if(!p)return;p.angle=(p.angle+Number(b.dataset.rotate)+360)%360;save();render();if(!$('streetviewPane').hidden&&streetViewKey)updateStreetView()};
+function render(){
+ const p=selectedFootprint(),isFacility=selectedIsFacility();
+ paintAreaSummary();refreshTestDropdown();$('pitchlist').replaceChildren();
+ for(const q of pitches.filter(q=>groupFor(q)===areaFilter)){
+  const b=document.createElement('button');b.className='pitchitem'+(q.id===selected?' selected':'');
+  const title=document.createElement('strong');title.textContent=q.code;
+  const sub=document.createElement('span');sub.textContent=q.trader+' · '+q.front+'m × '+q.depth+'m';
+  const tag=document.createElement('span');tag.className='areaTag';tag.textContent=groupMeta(groupFor(q)).label;
+  b.append(title,sub,tag);
+  if(q.testTraderId){const test=document.createElement('span');test.className='areaTag';test.textContent='FICTIONAL '+q.testTraderId;b.append(test);}
+  b.onclick=()=>choose(q.id);$('pitchlist').append(b);
+ }
+ $('editor').hidden=!p;$('empty').hidden=!!p;
+ $('selectedFootprintHeading').textContent=isFacility?'SELECTED FAIR FACILITY':'SELECTED PITCH';
+ for(const id of ['pitchAreaField','pitchPresetField','pitchTraderField','pitchCodeField'])$(id).hidden=isFacility;
+ if(p){
+  $('pitchFullDetails').textContent=isFacility?'FAIR FACILITY · '+p.name+' · '+p.front+'m × '+p.depth+'m · browser draft only':
+  'FULL DETAILS · '+p.code+' · '+p.trader+' · '+(p.testProduct||p.demoProducts||'Products not recorded')+' · '+(p.testStallType||'Type not recorded')+' · '+(p.status||'DRAFT');
+  if(!isFacility){$('pitchArea').value=groupFor(p);paintFrontPresets(p);$('code').value=p.code;$('trader').value=p.trader;}
+  for(const id of ['front','depth','angle'])$(id).value=p[id];
+  $('movePitch').textContent=placingPitch?'✕ Cancel move':isFacility?'↔ Move facility — click map':'↔ Move pitch — click map';
+  $('zoom').textContent=isFacility?'Centre map on facility':'Centre map on pitch';
+  $('remove').textContent=isFacility?'Remove draft facility':'Remove demo pitch';
+  $('coords').textContent=p.lat.toFixed(6)+', '+p.lng.toFixed(6)+' (WGS84)';
+  const overlap=isFacility?pitches.filter(x=>satOverlap(x,p)).map(x=>x.code).concat(facilities.filter(x=>x.id!==p.id&&satOverlap(x,p)).map(x=>x.name)):
+  pitches.filter(x=>x.id!==p.id&&satOverlap(x,p)).map(x=>x.code).concat(facilities.filter(x=>satOverlap(x,p)).map(x=>x.name));
+  $('warnings').textContent=overlap.length?'⚠ FOOTPRINT OVERLAP: '+overlap.join(', ')+'. Repositioning is allowed.':'✓ No draft footprint overlaps. Other hazards are NOT checked.';
+  $('warnings').className='status '+(overlap.length?'warning':'ok');
+ }
+ draw();
+}
+for(const [id,key] of [['code','code'],['trader','trader'],['front','front'],['depth','depth'],['angle','angle']])$(id).addEventListener('change',()=>{const p=selectedFootprint();if(!p||(selectedIsFacility()&&(id==='code'||id==='trader')))return;let val=$(id).value;if(['front','depth','angle'].includes(key)){val=Number(val);if(!Number.isFinite(val))return;if(key==='front')val=Math.max(.5,Math.min(30,val));if(key==='depth')val=Math.max(.5,Math.min(20,val));if(key==='angle')val=((val%360)+360)%360;}p[key]=val;saveFootprint();render();if(!$('streetviewPane').hidden&&streetViewKey)updateStreetView()});
+for(const b of document.querySelectorAll('[data-rotate]'))b.onclick=()=>{const p=selectedFootprint();if(!p)return;p.angle=(p.angle+Number(b.dataset.rotate)+360)%360;saveFootprint();render();if(!$('streetviewPane').hidden&&streetViewKey)updateStreetView()};
 $('areaFilter').onchange=()=>{areaFilter=$('areaFilter').value;selected=pitches.find(p=>groupFor(p)===areaFilter)?.id||null;render();};
 $('pitchArea').onchange=()=>{const p=selectedPitch();if(!p)return;const next=$('pitchArea').value;
 if(groupFor(p)===next)return;
@@ -472,14 +506,14 @@ if(!confirm('Move this DRAFT pitch into '+groupMeta(next).label+'? Its existing 
 p.zone=next;areaFilter=next;$('areaFilter').value=next;save();render();
 };
 let placingPitch=false;
-function toggleMove(on){placingPitch=!!on;$('movePitch').classList.toggle('armed',placingPitch);$('movePitch').textContent=placingPitch?'✕ Cancel move':'↔ Move pitch — click map';}
-$('movePitch').onclick=()=>{if(!selectedPitch())return status('Select a pitch first.',true);toggleMove(!placingPitch);};
+function toggleMove(on){placingPitch=!!on;$('movePitch').classList.toggle('armed',placingPitch);$('movePitch').textContent=placingPitch?'✕ Cancel move':selectedIsFacility()?'↔ Move facility — click map':'↔ Move pitch — click map';}
+$('movePitch').onclick=()=>{if(!selectedFootprint())return status('Select a pitch or facility first.',true);if(selectedIsFacility()){placingFacility=!placingFacility;toggleMove(false);displayFacilities();drawFacilities();}else toggleMove(!placingPitch);};
 map.on('click',e=>{if(!placingPitch)return;const p=selectedPitch();if(!p)return;p.lat=e.latlng.lat;p.lng=e.latlng.lng;toggleMove(false);save();render();if(!$('streetviewPane').hidden&&walkPanorama)updateWalkthrough();status('Moved '+p.code+' to map click. Verify position/clearances.');});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')toggleMove(false);});
 $('assignDemo').onclick=allocateTestTrader;
 $('add').onclick=()=>{const p=newPitch(pitches.length+1);p.zone=areaFilter;p.code=nextDraftCode(areaFilter);p.trader='Unassigned';pitches.push(p);selected=p.id;save();render()};
-$('remove').onclick=()=>{if(!confirm('Remove this DEMO pitch from the browser draft?'))return;pitches=pitches.filter(p=>p.id!==selected);selected=pitches[0]?.id||null;save();render()};
-$('zoom').onclick=()=>{const p=selectedPitch();if(p)map.setView([p.lat,p.lng],20)};
+$('remove').onclick=()=>{if(selectedIsFacility()){$('removeFacility').click();return;}if(!confirm('Remove this DEMO pitch from the browser draft?'))return;pitches=pitches.filter(p=>p.id!==selected);selected=pitches[0]?.id||null;save();render()};
+$('zoom').onclick=()=>{const p=selectedFootprint();if(p)map.setView([p.lat,p.lng],20)};
 // Maps Embed streetview mode: no key is committed or persisted.
 let streetViewKey='';
 const BROWSER_KEY_STORE='bamptonFair.restrictedGoogleKeys.v11';
@@ -516,7 +550,7 @@ $('forgetKeys').onclick=()=>{
 };
 restoreRestrictedKeys();
 function updateStreetView(){
-  const p=selectedPitch();
+  const p=selectedFootprint();
   if(!p)return;
   if(walkPanorama){updateWalkthrough();return;}
   if(!streetViewKey)return;
@@ -524,8 +558,8 @@ function updateStreetView(){
   const heading='330'; // Face up Brook Street by default; Google controls remain interactive.
   const url='https://www.google.com/maps/embed/v1/streetview?key='+encodeURIComponent(streetViewKey)+
     '&location='+encodeURIComponent(location)+'&heading='+encodeURIComponent(heading)+'&pitch=0';
-  $('streetviewPosition').textContent=p.code+' · near '+location+' · click another pitch to follow it';
-  $('streetviewPitchTitle').textContent=p.code;
+  $('streetviewPosition').textContent=selectedTitle(p)+' · near '+location+' · click another pitch to follow it';
+  $('streetviewPitchTitle').textContent=selectedTitle(p);
   const frame=$('streetviewFrame');
   // A fresh request is made only for an explicitly selected/updated pitch.
   if(frame.src!==url)frame.src=url;
@@ -533,12 +567,12 @@ function updateStreetView(){
   $('streetviewSetup').hidden=true;
 }
 function showStreetView(){
-  const p=selectedPitch();
-  if(!p){status('Select a pitch before opening Street View.',true);return;}
+  const p=selectedFootprint();
+  if(!p){status('Select a pitch or facility before opening Street View.',true);return;}
   $('streetviewPane').hidden=false;
   restoreStreetViewPosition();
-  $('streetviewPitchTitle').textContent=p.code;
-  $('streetviewPosition').textContent=p.code+' · near '+p.lat.toFixed(6)+','+p.lng.toFixed(6)+' · click another pitch to follow it';
+  $('streetviewPitchTitle').textContent=selectedTitle(p);
+  $('streetviewPosition').textContent=selectedTitle(p)+' · near '+p.lat.toFixed(6)+','+p.lng.toFixed(6)+' · click another pitch to follow it';
   if(streetViewKey)updateStreetView();
   else $('streetviewKey').focus();
 }
@@ -659,14 +693,14 @@ function offsetFor3dPitch(p){
  const v=p&&alignOffsets[p.id];
  return {east:Number.isFinite(v?.east)?v.east:0,north:Number.isFinite(v?.north)?v.north:0};
 }
-function current3dOffset(){return offsetFor3dPitch(selectedPitch());}
+function current3dOffset(){return offsetFor3dPitch(selectedFootprint());}
 function updateAlignmentStatus(){
  const all=$('walkScope').value==='all';
  const o=all?global3dOffset:current3dOffset();
  $('alignStatus').textContent=(all?'All stalls · road calibration: ':'Selected stall · demo-only: ')+o.east.toFixed(1)+'m E / '+o.north.toFixed(1)+'m N';
 }
 document.querySelectorAll('[data-align]').forEach(button=>button.addEventListener('click',()=>{
- const p=selectedPitch();
+ const p=selectedFootprint();
  if(!p||!walkPanorama||!$('show3d').checked){
    $('alignStatus').textContent='Start 3D overlay and select a stall first';return;
  }
@@ -734,7 +768,7 @@ function draw3dBox(){
    return [width/2+focal*right/depth,height/2-focal*vertical/depth,depth];
  };
  const all=$('walkScope').value==='all';
- const candidates=all?pitches:[selectedPitch()].filter(Boolean);
+ const candidates=all?[...pitches,...facilities]:[selectedFootprint()].filter(Boolean);
  const drawable=[];
  for(const p of candidates){
    if(!p||!Number.isFinite(p.lat)||!Number.isFinite(p.lng))continue;
@@ -747,7 +781,7 @@ function draw3dBox(){
    const corners=polygon(p).map(v=>[(v[1]-lng)*111320*Math.cos(lat*Math.PI/180)+offset.east,(v[0]-lat)*111320+offset.north]);
    const vertices=[...corners.map(v=>[v[0],v[1],groundHeight]),...corners.map(v=>[v[0],v[1],groundHeight+2.5])].map(project);
    const faces=[[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[4,5,6,7]];
-   const selected=p.id===selectedPitch()?.id;
+   const selected=p.id===selectedFootprint()?.id;
    if(artworkEnabled){
      const roof=[...corners.map(v=>[v[0],v[1],groundHeight+2.5]),
        [(corners[0][0]+corners[3][0])/2,(corners[0][1]+corners[3][1])/2,groundHeight+3.2],
@@ -827,7 +861,7 @@ function draw3dBox(){
      c.fill();c.stroke();
    }else{
      const {centre,p,selected}=item;
-     const label=String(p.code||'STALL')+(all?'':' · '+p.front+'×'+p.depth+'×2.5m');
+     const label=String(p.code||p.name||'FOOTPRINT')+(all?'':' · '+p.front+'×'+p.depth+'×2.5m');
      c.font=(selected?'bold ':'')+'12px Arial';
      const tw=c.measureText(label).width;
      const lx=Math.min(width-tw/2-9,Math.max(tw/2+9,centre[0]));
@@ -870,13 +904,13 @@ function syncWalkMarkers(){
 }
 function updateWalkthrough(){
   updateAlignmentStatus();
-  const p=selectedPitch();
+  const p=selectedFootprint();
   if(!p||!walkPanorama)return;
-  $('streetviewPitchTitle').textContent=p.code;
+  $('streetviewPitchTitle').textContent=selectedTitle(p);
   if(walkLastSelected!==p.id){
     walkLastSelected=p.id;
     walkPanorama.setPosition({lat:p.lat,lng:p.lng});
-    $('streetviewPosition').textContent=p.code+' · near '+p.lat.toFixed(6)+','+p.lng.toFixed(6)+' · Fair Day positions (indicative)';
+    $('streetviewPosition').textContent=selectedTitle(p)+' · near '+p.lat.toFixed(6)+','+p.lng.toFixed(6)+' · Fair Day positions (indicative)';
   }
   syncWalkMarkers();draw3dBox();
 }
@@ -1000,7 +1034,7 @@ function displayFacilities(){
   b.append(strong,tiny);b.onclick=()=>{selectedFacility=f.id;selected=null;placingFacility=false;toggleMove(false);render();displayFacilities();};
   list.append(b);
  }
- const f=facilityCurrent();$('facilityEditor').hidden=!f;
+ const f=facilityCurrent();$('facilityEditor').hidden=true;
  if(f){
   $('facilityName').value=f.name;$('facilityWidth').value=f.front;
   $('facilityDepth').value=f.depth;$('facilityAngle').value=f.angle;
