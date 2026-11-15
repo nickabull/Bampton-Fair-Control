@@ -83,7 +83,7 @@
 #mapOverview{width:100%}
 @media(max-width:760px){.fair-map-nav{top:49px;right:7px;transform:scale(.88);transform-origin:top right}}
 </style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V14.7 · OPTIONAL STALL-STYLE STAGE</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V14.8 · SIMPLE BLACK STAGE BOX</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -157,9 +157,9 @@
 <label for="facilityArtwork">Artwork / Appearance</label>
 <select id="facilityArtwork">
 <option value="basic_3d">Location marker only — stable</option>
-<option value="stage_experimental">Experimental 3D stage — stall-style renderer</option>
+<option value="stage_experimental">Black 3D box — same as stalls</option>
 </select>
-<p class="small muted" id="facilityArtworkHelp">Experimental stage draws through the same projection as stalls, but is not surveyed. Switch back to Location marker only if alignment is wrong.</p>
+<p class="small muted" id="facilityArtworkHelp">Black box uses exactly the same 3D footprint geometry as the orange stalls, with no stage details. Indicative Street View placement; not surveyed.</p>
 </div>
 <div class="field" id="pitchAreaField"><label for="pitchArea">Allocation area</label><select id="pitchArea"></select></div>
 <div class="field" id="pitchCodeField"><label>Pitch code</label><input id="code" maxlength="30"></div>
@@ -854,18 +854,19 @@ function draw3dBox(){
    const faces=[[0,1,5,4],[1,2,6,5],[2,3,7,6],[3,0,4,7],[4,5,6,7]];
    const selected=p.id===selectedFootprint()?.id;
    const isStage=p.type==='music_stage'&&p.appearance==='stage_experimental';
-   if(artworkEnabled||isStage){
+   if(artworkEnabled&&!isStage){
      const roof=[...corners.map(v=>[v[0],v[1],groundHeight+2.5]),
        [(corners[0][0]+corners[3][0])/2,(corners[0][1]+corners[3][1])/2,groundHeight+3.2],
        [(corners[1][0]+corners[2][0])/2,(corners[1][1]+corners[2][1])/2,groundHeight+3.2]].map(project);
-     drawable.push({type:'art',v:vertices,roof,depth:Math.hypot(east,north),p,selected,kind:isStage?'stage':artKind(p)});
-   }
-   for(const ids of (artworkEnabled||isStage?[]:faces)){
-     const v=ids.map(k=>vertices[k]);
-     // Skip near-plane crossings instead of stretching faces across Street View.
-     if(v.some(x=>!x))continue;
-     const depth=v.reduce((total,x)=>total+x[2],0)/v.length;
-     drawable.push({type:'face',v,depth,selected});
+     drawable.push({type:'art',v:vertices,roof,depth:Math.hypot(east,north),p,selected,kind:artKind(p)});
+   }else{
+     // Use precisely the same five cube faces as the orange stall, merely black.
+     for(const ids of faces){
+       const v=ids.map(k=>vertices[k]);
+       if(v.some(x=>!x))continue;
+       const depth=v.reduce((total,x)=>total+x[2],0)/v.length;
+       drawable.push({type:'face',v,depth,selected,isStage});
+     }
    }
    const centre=project([east,north,groundHeight+(p.type==='music_stage'?3.8:2.5)]);
    if(p.type!=='music_stage'&&centre&&centre[0]>-100&&centre[0]<width+100&&centre[1]>-30&&centre[1]<height+40){
@@ -890,39 +891,6 @@ function draw3dBox(){
        c.fillStyle=color;c.fill();c.strokeStyle=accent;c.lineWidth=1.5;c.stroke();
      };
      const mix=(a,b,t)=>[a[0]*(1-t)+b[0]*t,a[1]*(1-t)+b[1]*t];
-     if(kind==='stage'){
-       // Same 8 corners and projection as the stall artwork (not a panorama sprite).
-       // Square roof, black rear/side curtains, raised front deck and silver frame.
-       const stageAccent='#b1c4c9';
-       const canopy=(roof[0]&&roof[1]&&roof[2]&&roof[3])?
-         [roof[0],roof[1],roof[2],roof[3]]:[v[4],v[5],v[6],v[7]];
-       fill([v[7],v[6],v[2],v[3]],'rgba(14,17,20,.96)');
-       fill([v[5],v[6],v[2],v[1]],'rgba(23,26,29,.93)');
-       fill([v[0],v[1],v[5],v[4]],'rgba(19,21,24,.96)');
-       fill(canopy,'rgba(21,23,27,.96)');
-       for(let i=0;i<4;i++)line(v[i+4],v[i],stageAccent,3);
-       for(const [a,b] of [[v[4],v[5]],[v[5],v[6]],[v[6],v[7]],[v[7],v[4]]])line(a,b,stageAccent,3);
-       const screenPoint=(u,front,back)=>front&&back?mix(front,back,u):null;
-       const frontLeft=v[4],frontRight=v[5];
-       if(frontLeft&&frontRight){
-         for(let i=0;i<=6;i++){
-           const q=screenPoint(i/6,frontLeft,frontRight);
-           if(q){c.beginPath();c.arc(q[0],q[1]+5,3,0,Math.PI*2);c.fillStyle=i%2?'#8aff69':'#49e82d';c.fill();}
-         }
-       }
-       // Stage deck and raised front skirt; equipment is perspective-linked to corners.
-       fill([v[0],v[1],v[2],v[3]],'rgba(32,50,37,.94)');
-       if(v[0]&&v[1]&&v[4]&&v[5]){
-         for(const t of [.2,.8]){
-           const pos=mix(v[0],v[1],t),higher=mix(v[4],v[5],t);
-           const boxTop=mix(pos,higher,.40);
-           c.fillStyle='#1a1c1e';c.fillRect(boxTop[0]-9,boxTop[1]-10,18,20);
-           c.strokeStyle='#66737a';c.strokeRect(boxTop[0]-9,boxTop[1]-10,18,20);
-         }
-       }
-       // Avoid giant screen-space banner text; details will use textured 3D geometry later.
-       continue;
-     }
      if(kind==='trailer'){
        fill([v[0],v[1],v[5],v[4]],'rgba(255,228,172,.88)');
        fill([v[1],v[2],v[6],v[5]],'rgba(222,147,74,.84)');
@@ -961,8 +929,8 @@ function draw3dBox(){
      const v=item.v;
      c.beginPath();c.moveTo(v[0][0],v[0][1]);
      v.slice(1).forEach(pt=>c.lineTo(pt[0],pt[1]));c.closePath();
-     c.fillStyle=item.selected?'rgba(0,214,214,'+(opacity*.42)+')':'rgba(245,130,32,'+(opacity*.55)+')';
-     c.strokeStyle=item.selected?'#00d6d6':'#ff9b37';
+     c.fillStyle=item.isStage?'rgba(22,24,28,'+(opacity*.88)+')':item.selected?'rgba(0,214,214,'+(opacity*.42)+')':'rgba(245,130,32,'+(opacity*.55)+')';
+     c.strokeStyle=item.isStage?'#abb2b6':item.selected?'#00d6d6':'#ff9b37';
      c.lineWidth=item.selected?2.8:1.8;
      c.fill();c.stroke();
    }else{
