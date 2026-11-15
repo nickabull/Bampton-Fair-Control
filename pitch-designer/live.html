@@ -81,7 +81,7 @@
 #mapOverview{width:100%}
 @media(max-width:760px){.fair-map-nav{top:49px;right:7px;transform:scale(.88);transform-origin:top right}}
 </style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V14.2 · WIX STAGE ARTWORK</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V14.3 · STAGE IMAGE + MAP HOME</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -158,7 +158,7 @@
 <option value="stage_vector">Illustrated vector stage (fallback)</option>
 <option value="basic_3d">Basic 3D outline</option>
 </select>
-<p class="small muted" id="facilityArtworkHelp">Illustrated stage uses the current 6m × 4m footprint and rotation. Estimated visual height only; check the real installation.</p>
+<p class="small muted" id="facilityArtworkHelp">Detailed artwork loads from Wix Media and follows the map footprint approximately. It is an illustrative 2D cutout, not a surveyed 3D model.</p>
 </div>
 <div class="field" id="pitchAreaField"><label for="pitchArea">Allocation area</label><select id="pitchArea"></select></div>
 <div class="field" id="pitchCodeField"><label>Pitch code</label><input id="code" maxlength="30"></div>
@@ -332,8 +332,9 @@ async function loadPrivateOsFile(file){
     if(oldLayer)map.removeLayer(oldLayer);
     if(oldUrl)URL.revokeObjectURL(oldUrl);
     const p=selectedPitch();
-    // Fill the map viewport by cropping the SVG at the sides if necessary (never letterbox).
+    // Open centered on the first draft footprint, not the top margin of the OS extract.
     coverPrivateOsMap(true);
+    if(p&&osPrivateBounds.contains([p.lat,p.lng]))map.panTo([p.lat,p.lng],{animate:false});
     osStatus('Private OS MasterMap ONLY — OpenStreetMap tiles hidden. This council map stays on this device; press Show OpenStreetMap instead to swap maps.');
     setTimeout(()=>coverPrivateOsMap(),80);
   }catch(error){osStatus('Could not open private map: '+String(error.message||error).slice(0,120));}
@@ -897,9 +898,9 @@ function draw3dBox(){
       const iw=stageArtworkImage.naturalWidth,ih=stageArtworkImage.naturalHeight;
       c.save();
       c.globalAlpha=1;
-      c.setTransform((topRight[0]-topLeft[0])/iw,(topRight[1]-topLeft[1])/iw,
-        (bottomLeft[0]-topLeft[0])/ih,(bottomLeft[1]-topLeft[1])/ih,
-        topLeft[0],topLeft[1]);
+      c.setTransform(dpr*(topRight[0]-topLeft[0])/iw,dpr*(topRight[1]-topLeft[1])/iw,
+        dpr*(bottomLeft[0]-topLeft[0])/ih,dpr*(bottomLeft[1]-topLeft[1])/ih,
+        dpr*topLeft[0],dpr*topLeft[1]);
       c.drawImage(stageArtworkImage,0,0,iw,ih);
       c.restore();
     }
