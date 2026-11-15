@@ -79,7 +79,10 @@ const $=id=>document.getElementById(id),fields=['taskTitle','description','works
 let jobs=[],members=[],linkedOptions=[],workstreams=[],canEdit=false,canManageStreams=false,me='',current=null,requestId=null,streamRequestId=null,role='',view='cards',sortCol='taskTitle',sortAsc=true,hasMoreJobs=false;
 function msg(text){$('message').textContent=text}
 function request(type,data={}){window.parent.postMessage({type,...data},'*')}
-$('refresh').onclick=()=>request('FAIR_JOBS_REFRESH');
+$('refresh').onclick=()=>{
+ if(!$('editor').hidden&&!confirm('Reload the latest Jobs Matrix from GitHub? Unsaved changes in the job editor will be lost.'))return;
+ window.location.reload();
+};
 $('back').onclick=()=>request('FAIR_JOBS_BACK');
 $('new').onclick=()=>edit(null);
 $('cancel').onclick=()=>{$('editor').hidden=true;current=null};
