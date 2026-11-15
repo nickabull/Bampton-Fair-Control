@@ -83,7 +83,7 @@
 #mapOverview{width:100%}
 @media(max-width:760px){.fair-map-nav{top:49px;right:7px;transform:scale(.88);transform-origin:top right}}
 </style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V14.9 · UNIFIED 3D BOX CONTROL</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V15.0 · RELIABLE MAP STARTUP</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -248,6 +248,30 @@ map.getPane('privateOsPane').style.zIndex='250';
 map.getPane('privateOsPane').style.pointerEvents='none';
 let osPrivateOverlay=null,osPrivateObjectUrl=null;
 let prePrivateMinZoom=null;
+let osStartupPending=false,osStartupToken=0,osUserNavigated=false;
+const osStartupTimers=[];
+function schedulePrivateOsStartup(){
+  // Wix resizes the iframe after the HTML and private OS SVG have begun loading.
+  // Refit ONLY during the startup window, and stop immediately on user navigation.
+  const token=++osStartupToken;
+  osStartupPending=true;osUserNavigated=false;
+  for(const timer of osStartupTimers)clearTimeout(timer);
+  osStartupTimers.length=0;
+  const settle=()=>{
+    if(token!==osStartupToken||!osStartupPending||osUserNavigated||!osPrivateOverlay)return;
+    const el=document.getElementById('map');
+    if(el.clientWidth<200||el.clientHeight<200)return;
+    map.invalidateSize({pan:false,animate:false});
+    coverPrivateOsMap(true);
+  };
+  for(const ms of [0,160,420,900,1600,2600]){
+    osStartupTimers.push(setTimeout(settle,ms));
+  }
+  osStartupTimers.push(setTimeout(()=>{if(token===osStartupToken)osStartupPending=false;},2900));
+}
+map.on('dragstart',()=>{osUserNavigated=true;osStartupPending=false;});
+map.on('zoomstart',()=>{if(osStartupPending&&!osProgrammaticZoom){osUserNavigated=true;osStartupPending=false;}});
+let osProgrammaticZoom=false;
 function coverPrivateOsMap(resetView=false){
   if(!osPrivateOverlay||!osPrivateBounds||!map._loaded)return;
   map.invalidateSize({pan:false,animate:false});
@@ -258,8 +282,10 @@ function coverPrivateOsMap(resetView=false){
   map.setMinZoom(Math.max(0,coverZoom-2)); // Overview explicitly allows margins.
   const visible=map.getBounds();
   const imageCoversViewport=osPrivateBounds.contains(visible);
-  if(resetView||!imageCoversViewport){
-    map.setView(osPrivateBounds.getCenter(),coverZoom,{animate:false});
+  if(resetView||(!osUserNavigated&&!imageCoversViewport)){
+    osProgrammaticZoom=true;
+    try{map.setView(osPrivateBounds.getCenter(),coverZoom,{animate:false});}
+    finally{osProgrammaticZoom=false;}
   }
   // When the map aspect ratio changes in Wix, recompute once after resize.
   // Never automatically pan to a stall; use Stage/Centre controls for that.
@@ -324,11 +350,12 @@ async function loadPrivateOsFile(file){
     if(prePrivateMinZoom===null)prePrivateMinZoom=map.getMinZoom();
     if(oldLayer)map.removeLayer(oldLayer);
     if(oldUrl)URL.revokeObjectURL(oldUrl);
-    // Always open at the centre of the licensed map's usable extent.
-    // A selected pitch at the extract edge would expose a large blank margin.
-    coverPrivateOsMap(true);
+    // Wait for Wix's actual map-panel dimensions and the private SVG overlay.
+    // This first-load framing never changes the stored footprint coordinates.
+    osPrivateOverlay.once('load',schedulePrivateOsStartup);
+    schedulePrivateOsStartup();
     osStatus('Private OS MasterMap ONLY — OpenStreetMap tiles hidden. This council map stays on this device; press Show OpenStreetMap instead to swap maps.');
-    setTimeout(()=>coverPrivateOsMap(),80);
+    // Startup refits above replace the old one-shot 80ms guess.
   }catch(error){osStatus('Could not open private map: '+String(error.message||error).slice(0,120));}
 }
 $('osLocalFile').addEventListener('change',async e=>{
@@ -348,6 +375,9 @@ $('osFallback').onclick=()=>{
   if(osPrivateOverlay){map.removeLayer(osPrivateOverlay);osPrivateOverlay=null;}
   if(osPrivateObjectUrl){URL.revokeObjectURL(osPrivateObjectUrl);osPrivateObjectUrl=null;}
   osPrivateBounds=null;
+  osStartupPending=false;osStartupToken++;
+  for(const timer of osStartupTimers)clearTimeout(timer);
+  osStartupTimers.length=0;
   map.setMaxBounds(null);
   map.options.maxBoundsViscosity=0;
   if(prePrivateMinZoom!==null){map.setMinZoom(prePrivateMinZoom);prePrivateMinZoom=null;}
@@ -377,10 +407,14 @@ function tileDiagnostics(){
 let leafletTileErrors=0;
 let leafletTileLoads=0;
 let initialMapLoaded=false;
-function refreshMapSize(){if(!map?._loaded)return;map.invalidateSize({pan:false,animate:false});if(osPrivateOverlay)coverPrivateOsMap();}
+function refreshMapSize(){
+ if(!map?._loaded)return;
+ map.invalidateSize({pan:false,animate:false});
+ if(osPrivateOverlay&&osStartupPending&&!osUserNavigated)coverPrivateOsMap(true);
+}
 function scheduleMapResize(){[0,300,900,1800].forEach(ms=>setTimeout(refreshMapSize,ms));}
 function mapHomeView(){
- if(osPrivateBounds)coverPrivateOsMap(true);
+ if(osPrivateBounds){osStartupPending=false;osUserNavigated=false;coverPrivateOsMap(true);}
  else map.setView(base,18,{animate:false});
 }
 function mapOverviewView(){
