@@ -2,7 +2,12 @@
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bampton Fair | Pitch Designer V12 3D Test</title>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyo3E8zGdDHg5xg=" crossorigin="">
 <style>
-:root{--orange:#f58220;--ink:#111417;--panel:#202529;--edge:#3b454b;--muted:#b6c0c5;--cyan:#00d6d6}*{box-sizing:border-box}html,body{height:100%;margin:0;font-family:Arial,sans-serif;color:#fff;background:var(--ink)}header{height:75px;background:var(--orange);color:#101010;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;gap:12px}header h1{font-weight:900;font-size:clamp(19px,3vw,29px);margin:3px 0}header small{font-weight:800;letter-spacing:.8px}.tag{font-size:11px;font-weight:bold;border:1px solid #1d1d1d;border-radius:30px;padding:7px 10px}.shell{display:grid;grid-template-columns:300px minmax(0,1fr) 300px;height:calc(100% - 75px)}aside{background:var(--panel);padding:15px;overflow-y:auto}aside.left{border-right:1px solid var(--edge)}aside.right{border-left:1px solid var(--edge)}#map{height:100%;width:100%;background:#d9dcd8}.mapwrap{position:relative;min-height:400px}.hint{position:absolute;top:12px;left:50px;z-index:800;background:#151719e8;border:1px solid #3b454b;border-radius:8px;font-size:12px;padding:9px 12px;pointer-events:none}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.field{margin:12px 0}label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px}input,select{font:inherit;width:100%;color:#fff;background:#14191b;border:1px solid #576069;padding:10px;border-radius:7px}input:focus{outline:2px solid var(--orange)}button{font:inherit;border:0;background:var(--orange);color:#151719;border-radius:8px;padding:10px 12px;font-weight:bold;cursor:pointer}button.secondary{color:white;background:#3d464c}button.ghost{color:white;background:transparent;border:1px solid #68727a}button:disabled{cursor:not-allowed;opacity:.4}.small{font-size:12px}.muted{color:var(--muted)}.section-title{font-size:14px;text-transform:uppercase;letter-spacing:1px;color:var(--orange);margin:4px 0 12px}.pitchitem{display:block;text-align:left;width:100%;padding:13px;margin-bottom:7px;background:#30373b;color:white;border:1px solid #566067}.pitchitem.selected{border:2px solid var(--orange);background:#4d3826}.pitchitem strong,.pitchitem span{display:block}.pitchitem span{font-size:12px;margin-top:5px;color:#bdc8ce}.dims{display:grid;grid-template-columns:1fr 1fr;gap:8px}.status{padding:10px;border-radius:8px;background:#372d20;border:1px solid #b26f25;font-size:12px;margin:12px 0}.warning{background:#4b2323;border-color:#e36b6b}.ok{background:#173d2b;border-color:#60c395}.rotation{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}.rotation button{padding:9px 2px}.footer{border-top:1px solid var(--edge);padding-top:12px;margin-top:15px}.markerbody{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:3px solid #10191e;background:#f58220;font-size:13px;font-weight:900;color:#10191e;box-shadow:0 2px 5px #0008}.leaflet-container{font-family:Arial,sans-serif}.leaflet-tooltip.pitchlabel{font-weight:800;color:#111;background:#ffcc8a;border:1px solid #111}.leaflet-tooltip.pitchlabel:before{border-top-color:#111}@media(max-width:1050px){.shell{grid-template-columns:230px minmax(0,1fr) 230px}}@media(max-width:760px){header{height:auto}.shell{display:flex;flex-direction:column;height:auto}.mapwrap{height:60vh;order:0}aside.left{order:1}aside.right{order:2}aside{max-height:none}}
+:root{--orange:#f58220;--ink:#111417;--panel:#202529;--edge:#3b454b;--muted:#b6c0c5;--cyan:#00d6d6}*{box-sizing:border-box}html,body{height:100%;margin:0;font-family:Arial,sans-serif;color:#fff;background:var(--ink)}header{height:75px;background:var(--orange);color:#101010;display:flex;align-items:center;justify-content:space-between;padding:12px 18px;gap:12px}header h1{font-weight:900;font-size:clamp(19px,3vw,29px);margin:3px 0}header small{font-weight:800;letter-spacing:.8px}.tag{font-size:11px;font-weight:bold;border:1px solid #1d1d1d;border-radius:30px;padding:7px 10px}.shell{display:grid;grid-template-columns:300px minmax(0,1fr) 300px;height:calc(100% - 75px)}aside{background:var(--panel);padding:15px;overflow-y:auto}aside.left{border-right:1px solid var(--edge)}aside.right{border-left:1px solid var(--edge)}#map{height:100%;width:100%;background:#d9dcd8}.mapwrap{position:relative;min-height:400px}.hint{position:absolute;top:12px;left:50px;z-index:800;background:#151719e8;border:1px solid #3b454b;border-radius:8px;font-size:12px;padding:9px 12px;pointer-events:none}.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}.field{margin:12px 0}label{display:block;font-size:12px;color:var(--muted);margin:0 0 5px}input,select{font:inherit;width:100%;color:#fff;background:#14191b;border:1px solid #576069;padding:10px;border-radius:7px}input:focus{outline:2px solid var(--orange)}button{font:inherit;border:0;background:var(--orange);color:#151719;border-radius:8px;padding:10px 12px;font-weight:bold;cursor:pointer}button.secondary{color:white;background:#3d464c}button.ghost{color:white;background:transparent;border:1px solid #68727a}button:disabled{cursor:not-allowed;opacity:.4}.small{font-size:12px}.muted{color:var(--muted)}.section-title{font-size:14px;text-transform:uppercase;letter-spacing:1px;color:var(--orange);margin:4px 0 12px}.pitchitem{display:block;text-align:left;width:100%;padding:13px;margin-bottom:7px;background:#30373b;color:white;border:1px solid #566067}.pitchitem.selected{border:2px solid var(--orange);background:#4d3826}
+.facility-section{border-top:2px solid #f58220;padding-top:12px;margin-top:18px}
+.facilityitem{display:block;text-align:left;width:100%;padding:11px;margin:7px 0;background:#29383f;color:white;border:1px solid #5a797f;border-radius:8px}
+.facilityitem.selected{border:2px solid #ffd367;background:#494028}
+.facilityitem small{display:block;color:#c6d3d9;margin-top:4px}
+.facility-section .field{margin:9px 0}.pitchitem strong,.pitchitem span{display:block}.pitchitem span{font-size:12px;margin-top:5px;color:#bdc8ce}.dims{display:grid;grid-template-columns:1fr 1fr;gap:8px}.status{padding:10px;border-radius:8px;background:#372d20;border:1px solid #b26f25;font-size:12px;margin:12px 0}.warning{background:#4b2323;border-color:#e36b6b}.ok{background:#173d2b;border-color:#60c395}.rotation{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px}.rotation button{padding:9px 2px}.footer{border-top:1px solid var(--edge);padding-top:12px;margin-top:15px}.markerbody{display:flex;align-items:center;justify-content:center;width:36px;height:36px;border-radius:50%;border:3px solid #10191e;background:#f58220;font-size:13px;font-weight:900;color:#10191e;box-shadow:0 2px 5px #0008}.leaflet-container{font-family:Arial,sans-serif}.leaflet-tooltip.pitchlabel{font-weight:800;color:#111;background:#ffcc8a;border:1px solid #111}.leaflet-tooltip.pitchlabel:before{border-top-color:#111}@media(max-width:1050px){.shell{grid-template-columns:230px minmax(0,1fr) 230px}}@media(max-width:760px){header{height:auto}.shell{display:flex;flex-direction:column;height:auto}.mapwrap{height:60vh;order:0}aside.left{order:1}aside.right{order:2}aside{max-height:none}}
 
 /* Self-contained Leaflet positioning fallback: Wix HTML embeds sometimes block external CSS. */
 #map.leaflet-container{position:relative;overflow:hidden;outline:0}
@@ -69,7 +74,7 @@
 .pitch-footprint-label{display:block;background:#1f2529eb;border:1px solid #f58220;border-radius:5px;color:#fff;padding:2px 4px;font:bold 10px Arial;text-align:center;white-space:nowrap;box-shadow:0 2px 7px #0005}
 .pitchitem .areaTag{display:block;color:#fbc48c;font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.35px;margin-top:3px}
 #movePitch.armed{background:#f58220;color:#111!important} #streetviewJs{position:absolute;inset:0;width:100%;height:100%;min-height:0} #walk3dCanvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:700} .pitch-hover{background:#202529;color:#fff;border:1px solid #f58220;border-radius:9px;padding:9px 12px;box-shadow:0 5px 20px #0008;line-height:1.5} .pitch-hover strong{color:#ffa64d;font-size:13px}.pitch-drag-handle{width:20px;height:20px;border:1px solid #50585c;border-radius:4px;background:#f5f2e9;color:#111;box-shadow:0 1px 4px #0007;display:grid;place-items:center;cursor:grab;touch-action:none;position:relative}.pitch-drag-handle::before,.pitch-drag-handle::after{content:'';display:block;position:absolute;background:#111;border-radius:2px}.pitch-drag-handle::before{width:12px;height:2.5px}.pitch-drag-handle::after{width:2.5px;height:12px}.pitch-map-label{color:#111;text-align:center;line-height:1.1;font:bold 11px Arial,sans-serif;text-shadow:0 1px 2px #fff,0 -1px 2px #fff;white-space:nowrap;pointer-events:none;transform:translate(-50%,-50%);width:max-content;max-width:110px;overflow:hidden;text-overflow:ellipsis}.leaflet-tooltip.pitch-hover-wrap,.leaflet-tooltip.pitch-hover-wrap .pitch-hover{color:#111;background:#fffaf0}.leaflet-tooltip.pitch-hover-wrap .pitch-hover strong{color:#111}.leaflet-tooltip.pitch-hover-wrap{border-color:#333}.leaflet-tooltip.pitch-hover-wrap{font:12px/1.3 Arial,sans-serif!important;max-width:190px!important;white-space:normal!important;padding:5px 7px!important;box-shadow:0 2px 6px #0004!important}.leaflet-tooltip.pitch-hover-wrap .pitch-hover{font:12px/1.3 Arial,sans-serif!important;max-width:175px!important;padding:0!important;border:0!important;box-shadow:none!important}.leaflet-tooltip.pitch-hover-wrap .pitch-hover strong{font-size:12px!important;color:#111!important}.pitch-drag-handle:active{cursor:grabbing}.leaflet-tooltip.pitch-hover-wrap{pointer-events:none}.pitch-summary{min-width:195px;color:#263039;line-height:1.6;font-size:13px}.pitch-summary strong{color:#bc6015}.pitch-summary button{background:#f58220;color:#101010;border:0;border-radius:6px;padding:9px 12px;cursor:pointer;font-weight:bold;width:100%;margin-top:8px}.leaflet-popup-content-wrapper{border:2px solid #f58220}</style></head><body>
-<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V13.3 · STALL ARTWORK</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
+<header><div><small>BAMPTON TOWN COUNCIL · DEVELOPMENT</small><h1>FAIR PITCH DESIGNER</h1></div><div class="row"><div class="tag">V13.4 · FAIR FACILITIES</div><button id="refreshDesigner" type="button" title="Reload only the embedded map, not the Wix page" style="background:#111417;color:#fff;border:1px solid #fff;padding:9px 12px;white-space:nowrap">↻ Refresh Map</button></div></header>
 <div class="shell">
 <aside class="left"><div class="section-title">Private OS MasterMap</div><div class="os-load"><label for="osLocalFile">Load your council-licensed local map file (SVG)</label><input id="osLocalFile" type="file" accept=".svg,image/svg+xml"/><div id="osLocalStatus" class="small muted" role="status">V9 full Fair route: Brook Street, Castle Street, Luke Street to the War Memorial. Load your local SVG. OpenStreetMap fallback remains available. Optionally remember it only in this browser, never GitHub or Wix CMS.</div><button id="rememberOs" class="secondary" type="button" style="width:100%;margin:8px 0">Remember OS map on this device</button>
 <button id="forgetOs" class="ghost" type="button" style="width:100%;margin:4px 0">Forget locally remembered OS map</button>
@@ -79,7 +84,32 @@
 <div class="field"><label for="readyTrader">Ready to allocate · unallocated traders</label><select id="readyTrader"><option value="">Choose a ready, fictitious trader…</option></select>
 <button id="assignDemo" type="button" style="width:100%;margin:8px 0;background:#f58220;color:#171717">Place selected fictional trader on map</button>
 <div id="demoQueueStatus" class="small muted">TEST MODE · fake applications only · no private contact details.</div></div>
-<div id="pitchlist"></div><button id="add" style="width:100%">+ Add draft pitch in selected area</button><div class="footer"><div class="field"><label>Fair year</label><input type="number" id="eventYear" min="2027" max="2100" value="2027"></div>
+<div id="pitchlist"></div><button id="add" style="width:100%">+ Add draft pitch in selected area</button>
+<section id="facilitySection" class="facility-section" aria-label="Fair Facilities">
+<div class="section-title" style="margin-top:22px">Fair Facilities</div>
+<p class="small muted">Facilities are separate from stall pitches. Place the footprint on the map and adjust the size and rotation. Browser draft only.</p>
+<div class="field"><label for="facilityType">Choose a facility</label>
+<select id="facilityType">
+<option value="craft_marquee">Craft Marquee</option>
+<option value="children_marquee">Children's Zone Marquee</option>
+<option value="music_stage">Music Stage — 6m × 4m</option>
+<option value="toilets">Toilets</option>
+<option value="barriers">Barriers</option>
+<option value="funfair">Fun Fair</option>
+</select></div>
+<button id="addFacility" type="button" style="width:100%">+ Add selected facility</button>
+<div class="status" id="facilityStatus">No facility selected. Select a type, then add it.</div>
+<div id="facilityList" aria-label="Placed facilities"></div>
+<div id="facilityEditor" hidden>
+<div class="field"><label for="facilityName">Facility name</label><input id="facilityName" maxlength="100"></div>
+<div class="dims"><div class="field"><label for="facilityWidth">Width (m)</label><input id="facilityWidth" type="number" min=".5" max="200" step=".5"></div><div class="field"><label for="facilityDepth">Depth (m)</label><input id="facilityDepth" type="number" min=".5" max="200" step=".5"></div></div>
+<div class="field"><label for="facilityAngle">Rotation (degrees)</label><input id="facilityAngle" type="number" min="-360" max="360" step="5"></div>
+<button id="moveFacility" type="button" class="secondary" style="width:100%;margin:5px 0">↔ Move facility — click map</button>
+<button id="centreFacility" type="button" class="secondary" style="width:100%;margin:5px 0">Centre map on facility</button>
+<button id="removeFacility" type="button" class="ghost" style="width:100%;margin:5px 0">Remove draft facility</button>
+</div>
+<p class="small muted">Draft facility IDs are reserved for future Jobs Matrix links; nothing here is written to the live Wix pitch/allocation collection.</p>
+</section><div class="footer"><div class="field"><label>Fair year</label><input type="number" id="eventYear" min="2027" max="2100" value="2027"></div>
 <button class="secondary" id="loadWix" style="width:100%;margin-bottom:8px">Load 2027 pitches from Wix</button>
 <button class="secondary" id="loadObstacles" style="width:100%;margin-bottom:8px">Show mapped obstacles</button>
 <button id="saveWix" style="width:100%;margin-bottom:8px">Save REAL pitch to Wix</button>
@@ -429,7 +459,7 @@ if(active){
   marker.on('drag',e=>{const ll=e.target.getLatLng();p.lat=ll.lat+offset[0];p.lng=ll.lng+offset[1];poly.setLatLngs(polygon(p));label.setLatLng([p.lat,p.lng]);});
   marker.on('dragend',()=>{save();render();if(!$('streetviewPane').hidden&&(streetViewKey||walkPanorama))updateStreetView();});
 }
-layers[p.id]={poly,marker,label};}const selectedItem=selectedPitch();const box=$('warnings');if(selectedItem){const matches=pitches.filter(p=>p.id!==selectedItem.id&&satOverlap(p,selectedItem));box.textContent=matches.length?'⚠ PITCH OVERLAP: '+matches.map(x=>x.code).join(', '):'✓ No overlaps with the other draft pitches. Other hazards are NOT checked.';box.className='status '+(matches.length?'warning':'ok');$('coords').textContent=selectedItem.lat.toFixed(6)+', '+selectedItem.lng.toFixed(6)+' (WGS84)';}}
+layers[p.id]={poly,marker,label};}drawFacilities();const selectedItem=selectedPitch();const box=$('warnings');if(selectedItem){const matches=pitches.filter(p=>p.id!==selectedItem.id&&satOverlap(p,selectedItem));box.textContent=matches.length?'⚠ PITCH OVERLAP: '+matches.map(x=>x.code).join(', '):'✓ No overlaps with the other draft pitches. Other hazards are NOT checked.';box.className='status '+(matches.length?'warning':'ok');$('coords').textContent=selectedItem.lat.toFixed(6)+', '+selectedItem.lng.toFixed(6)+' (WGS84)';}}
 function choose(id){selected=id;toggleMove(false);render();if(!$('streetviewPane').hidden&&(streetViewKey||walkPanorama))updateStreetView();}
 function render(){const p=selectedPitch();paintAreaSummary();refreshTestDropdown();$('pitchlist').replaceChildren();for(const q of pitches.filter(q=>groupFor(q)===areaFilter)){const b=document.createElement('button');b.className='pitchitem'+(q.id===selected?' selected':'');const title=document.createElement('strong');title.textContent=q.code;const sub=document.createElement('span');sub.textContent=q.trader+' · '+q.front+'m × '+q.depth+'m';const areaTag=document.createElement('span');areaTag.className='areaTag';areaTag.textContent=groupMeta(groupFor(q)).label;b.append(title,sub,areaTag);if(q.testTraderId){const t=document.createElement('span');t.className='areaTag';t.textContent='FICTIONAL '+q.testTraderId;b.append(t);}b.onclick=()=>choose(q.id);$('pitchlist').append(b);}$('editor').hidden=!p;$('empty').hidden=!!p;if(p){$('pitchFullDetails').textContent='FULL DETAILS · '+p.code+' · '+p.trader+' · '+(p.testProduct||p.demoProducts||'Products not recorded')+' · '+(p.testStallType||'Type not recorded')+' · '+(p.status||'DRAFT');$('pitchArea').value=groupFor(p);paintFrontPresets(p);for(const [key,id] of [['code','code'],['trader','trader'],['front','front'],['depth','depth'],['angle','angle']])$(id).value=p[key]}draw();}
 for(const [id,key] of [['code','code'],['trader','trader'],['front','front'],['depth','depth'],['angle','angle']])$(id).addEventListener('change',()=>{const p=selectedPitch();if(!p)return;let val=$(id).value;if(['front','depth','angle'].includes(key)){val=Number(val);if(!Number.isFinite(val))return;if(key==='front')val=Math.max(.5,Math.min(30,val));if(key==='depth')val=Math.max(.5,Math.min(20,val));if(key==='angle')val=((val%360)+360)%360;}p[key]=val;save();render();if(!$('streetviewPane').hidden&&streetViewKey)updateStreetView()});
@@ -937,6 +967,110 @@ selected=p.id;save();render();status('Saved '+p.code+' to Wix with an audit even
 catch(e){status(String(e.message||e)+' — do not retry an uncertain save without checking the record.',true);}
 };
 $('export').onclick=()=>{const out=JSON.stringify({prototype:true,source:'browser-only draft',savedAt:new Date().toISOString(),pitches},null,2);const blob=new Blob([out],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='bampton-pitch-draft.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),500)};
+
+// FAIR FACILITIES V1: a separate browser-local layer. NEVER mixed into Wix stall allocations.
+// Stable-type identifiers will allow future Jobs Matrix references after a reviewed migration.
+const FACILITY_STORE='bamptonFair.facilities.draft.v1';
+const FACILITY_TYPES={
+ craft_marquee:{label:'Craft Marquee',w:12,d:6,icon:'🎪',colour:'#8c55c6'},
+ children_marquee:{label:"Children's Zone Marquee",w:12,d:6,icon:'🎈',colour:'#d45ba1'},
+ music_stage:{label:'Music Stage',w:6,d:4,icon:'🎵',colour:'#e19a19'},
+ toilets:{label:'Toilets',w:4,d:3,icon:'🚻',colour:'#327eb6'},
+ barriers:{label:'Barriers',w:6,d:1,icon:'🚧',colour:'#bd6838'},
+ funfair:{label:'Fun Fair',w:20,d:15,icon:'🎡',colour:'#b14646'}
+};
+let facilities=[],selectedFacility=null,placingFacility=false;
+try{const a=JSON.parse(localStorage.getItem(FACILITY_STORE)||'[]');
+ if(Array.isArray(a))facilities=a.filter(x=>FACILITY_TYPES[x.type]&&Number.isFinite(x.lat)&&Number.isFinite(x.lng)&&Number.isFinite(x.front)&&Number.isFinite(x.depth)&&Number.isFinite(x.angle)&&x.front>0&&x.depth>0).slice(0,100);
+}catch(_e){}
+const facilityLayer=L.layerGroup().addTo(map);
+function saveFacilities(){
+ try{localStorage.setItem(FACILITY_STORE,JSON.stringify(facilities));}
+ catch(_e){$('facilityStatus').textContent='Browser storage unavailable; export your draft before leaving.';}
+}
+function facilityCurrent(){return facilities.find(x=>x.id===selectedFacility);}
+function displayFacilities(){
+ const list=$('facilityList');list.replaceChildren();
+ for(const f of facilities){
+  const b=document.createElement('button');b.type='button';
+  b.className='facilityitem'+(f.id===selectedFacility?' selected':'');
+  const strong=document.createElement('strong');strong.textContent=FACILITY_TYPES[f.type].icon+' '+f.name;
+  const tiny=document.createElement('small');tiny.textContent=f.front+'m × '+f.depth+'m · draft';
+  b.append(strong,tiny);b.onclick=()=>{selectedFacility=f.id;placingFacility=false;displayFacilities();drawFacilities();};
+  list.append(b);
+ }
+ const f=facilityCurrent();$('facilityEditor').hidden=!f;
+ if(f){
+  $('facilityName').value=f.name;$('facilityWidth').value=f.front;
+  $('facilityDepth').value=f.depth;$('facilityAngle').value=f.angle;
+ }
+ $('moveFacility').textContent=placingFacility?'✕ Cancel facility placement':'↔ Move facility — click map';
+}
+function drawFacilities(){
+ facilityLayer.clearLayers();
+ for(const f of facilities){
+  const active=f.id===selectedFacility,t=FACILITY_TYPES[f.type];
+  const conflict=pitches.some(p=>satOverlap(p,f))||facilities.some(other=>other.id!==f.id&&satOverlap(other,f));
+  const polygonLayer=L.polygon(polygon(f),{
+   color:conflict?'#e84b4b':active?'#fff2aa':t.colour,weight:active?4:2,
+   fillColor:t.colour,fillOpacity:.32,dashArray:conflict?'4 3':null
+  }).addTo(facilityLayer);
+  const text=t.icon+' '+f.name+' · '+f.front+'m × '+f.depth+'m'+(conflict?' · POSSIBLE FOOTPRINT OVERLAP':' · UNVERIFIED');
+  polygonLayer.bindTooltip(text,{sticky:true,direction:'top'});
+  polygonLayer.on('click',e=>{L.DomEvent.stopPropagation(e);selectedFacility=f.id;placingFacility=false;displayFacilities();drawFacilities();});
+  L.marker([f.lat,f.lng],{interactive:false,icon:L.divIcon({className:'',
+    html:'<div style="font:bold 12px Arial;background:#202529e8;color:#fff;border:1px solid #ffad50;border-radius:5px;padding:4px 6px;white-space:nowrap;transform:translate(-50%,-50%)">'+safeHtml(t.icon+' '+f.name)+'</div>',
+    iconSize:[0,0],iconAnchor:[0,0]})}).addTo(facilityLayer);
+ }
+ const f=facilityCurrent();
+ const clashes=f&&(pitches.some(p=>satOverlap(p,f))||facilities.some(o=>o.id!==f.id&&satOverlap(o,f)));
+ $('facilityStatus').textContent=!f?'Choose a facility to edit, or add a new one.':
+   (placingFacility?'Click the map to place '+f.name+'. Esc to cancel.':
+   (clashes?'⚠ Facility footprint overlaps another draft footprint. ':'')+
+   'Selected: '+f.name+' · '+f.front+'m × '+f.depth+'m · UNVERIFIED');
+ $('facilityStatus').className='status'+(clashes?' warning':'');
+}
+$('addFacility').onclick=()=>{
+ const type=$('facilityType').value,t=FACILITY_TYPES[type];if(!t)return;
+ const c=map.getCenter();
+ const facility={id:'facility-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),
+  type,name:t.label,lat:c.lat,lng:c.lng,front:t.w,depth:t.d,angle:0,status:'DRAFT',eventYear:Number($('eventYear').value)||2027};
+ facilities.push(facility);selectedFacility=facility.id;placingFacility=true;
+ saveFacilities();displayFacilities();drawFacilities();
+};
+for(const [id,key] of [['facilityName','name'],['facilityWidth','front'],['facilityDepth','depth'],['facilityAngle','angle']]){
+ $(id).addEventListener('change',()=>{
+  const f=facilityCurrent();if(!f)return;
+  const value=key==='name'?$(id).value.trim():Number($(id).value);
+  if(key==='name'&&(!value||value.length>100)){displayFacilities();return;}
+  if(key!=='name'&&(!Number.isFinite(value)||(key==='angle'?Math.abs(value)>360:value<.5||value>200))){displayFacilities();return;}
+  f[key]=value;saveFacilities();displayFacilities();drawFacilities();
+ });
+}
+$('moveFacility').onclick=()=>{
+ if(!facilityCurrent())return;
+ placingFacility=!placingFacility;displayFacilities();drawFacilities();
+};
+$('centreFacility').onclick=()=>{
+ const f=facilityCurrent();if(f)map.setView([f.lat,f.lng],19);
+};
+$('removeFacility').onclick=()=>{
+ const f=facilityCurrent();if(!f)return;
+ if(!confirm('Remove this browser-only facility draft?'))return;
+ facilities=facilities.filter(x=>x.id!==f.id);selectedFacility=facilities[0]?.id||null;
+ placingFacility=false;saveFacilities();displayFacilities();drawFacilities();
+};
+map.on('click',e=>{
+ if(!placingFacility)return;
+ const f=facilityCurrent();if(!f)return;
+ f.lat=e.latlng.lat;f.lng=e.latlng.lng;
+ placingFacility=false;saveFacilities();displayFacilities();drawFacilities();
+});
+document.addEventListener('keydown',e=>{
+ if(e.key==='Escape'&&placingFacility){placingFacility=false;displayFacilities();drawFacilities();}
+});
+displayFacilities();drawFacilities();
+
 render();scheduleMapResize(); // V11: fixed overlay label hidden unless selected and zoomed in; polygon always scales.
 })();
 </script></body></html>
