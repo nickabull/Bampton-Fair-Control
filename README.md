@@ -12,3 +12,8 @@ This site is PUBLIC and has NO AUTHENTICATION or encryption. Browser storage sta
 
 ## Offline test
 Open online and wait for service-worker installation, disconnect, reload, enter a dummy message, download backups, reconnect. Confirm storage remains consistent and that your corporate device allows service workers and downloads.
+
+
+## Living project handover (16 November 2026)
+
+The canonical cross-chat Bampton Fair project handover, current status, implementation notes, outstanding work and a paste-ready continuation prompt are maintained in **[PROJECT-HANDOVER.md](https://github.com/nickabull/Bampton-Fair-Mapping/blob/main/PROJECT-HANDOVER.md)** in the companion `Bampton-Fair-Mapping` repository. Read it before editing the Pitch Designer master or Wix backend. Update the handover after each meaningful development session; it is not automatically updated by ChatGPT.
